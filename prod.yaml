@@ -3,5 +3,5 @@ DEBUG: true
 TESTING: true
 SECRET_KEY: gyk199941?
 LEVEL: 30
-SQLALCHEMY_DATABASE_URI: mysql+pymysql://designer:sEPL7PHYNk6DGpa2@wghtstudio.cn:3306/designer
+SQLALCHEMY_DATABASE_URI: mysql+pymysql://mail:xxw2p3mRH4pJfMk6@wghtstudio.cn:3306/mail
 SQLALCHEMY_TRACK_MODIFICATIONS: false

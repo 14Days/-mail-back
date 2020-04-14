@@ -2,6 +2,7 @@ from flask import Flask
 from flask_cors import CORS
 from app.basic import Config, set_logger
 from app.controllers import register_router
+from app.daos import connect_db
 from app.middlewares import log_middleware
 
 
@@ -20,6 +21,9 @@ def create_new_app() -> Flask:
 
     # 注册路由
     register_router(app)
+
+    # 连接数据库
+    connect_db(app)
 
     app.logger.info('app 配置成功')
 
