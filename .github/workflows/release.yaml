@@ -1,0 +1,30 @@
+name: release
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@master
+      - name: Deploy
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          port: ${{ secrets.PORT }}
+          script: |
+            cd /home/zjg/-mail-back
+            git reset --hard origin/master
+            git clean -f
+            git checkout master
+            git pull origin master
+            if [ $(docker ps -aq --filter name=mail_server) ]; then docker rm -f mail_server; docker rmi mail_server; fi
+            docker build -t 'mail_server' .
+            docker run -d -p 6002:5000 --name=mail_server mail_server
