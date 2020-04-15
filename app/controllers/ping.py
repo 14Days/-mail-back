@@ -13,4 +13,4 @@ class Ping(MethodView):
         return success_warp('post pong')
 
 
-ping.add_url_rule('/methods', view_func=Ping.as_view('ping'))
+ping.add_url_rule('/ping', view_func=Ping.as_view('ping'))
