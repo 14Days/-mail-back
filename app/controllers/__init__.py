@@ -2,7 +2,7 @@ from flask import Flask
 from app.controllers.login import login
 from app.controllers.ping import ping
 from app.controllers.register import register
-
+from app.controllers.change import  change
 
 def register_router(app: Flask):
     # ping
@@ -11,3 +11,5 @@ def register_router(app: Flask):
     app.register_blueprint(login)
     # 注册
     app.register_blueprint(register)
+    # 修改资料
+    app.register_blueprint(change)
