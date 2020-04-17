@@ -15,4 +15,3 @@ class User(db.Model):
     nickname = db.Column(db.String, nullable=False, default='新建用户')
     sex = db.Column(db.Integer, nullable=True, default=1)
     user_type = db.Column(db.Integer, nullable=False, default=2)
-    user_status = db.Column(db.Integer, nullable=False, default=1)
