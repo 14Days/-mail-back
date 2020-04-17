@@ -1,31 +1,22 @@
-from flask import current_app
+import re
 from app.daos.user import IUser, DaoUser
-from app.models.errors import UserNotFound, PasswordError
-from app.utils import MD5, Token
-
-
-class UserChangeData:
-    def __init__(self, user_id, user_type, token):
-        self.user_id = user_id
-        self.user_type = user_type
-        self.token = token
+from app.models.errors import UserNotFound
 
 
 class IChange:
-    def user_change(self, uid: int, username: str, nickname: str, sex: int) -> UserChangeData:
+    def user_change(self, uid: int, user_type: int, nickname: str, sex: int) -> None:
         pass
 
 
 class Change(IChange):
-    user: IUser
+    _user: IUser
 
     def __init__(self):
         self.user = DaoUser()
 
-    def user_change(self, uid: int) -> UserChangeData:
+    def user_change(self, uid: int, user_type: int, nickname: str, sex: int) -> None:
         user = self.user.query_user_by_id(uid)
         if user is None:
             raise UserNotFound('用户未找到')
-
-
-        return UserChangeData()
+        self._user.change_user(uid, user_type, nickname, sex)
+        return
