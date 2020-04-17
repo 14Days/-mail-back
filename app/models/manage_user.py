@@ -1,7 +1,7 @@
 from flask import current_app
 from app.daos.model import User
 from app.daos.user import IUser, DaoUser
-from app.models.errors import UserNotFound
+from app.models.errors import UserNotFound, DeleteAdminError
 
 
 class UserListData:
@@ -24,9 +24,6 @@ class IManageUser:
         pass
 
     def get_user_detail(self) -> UserDetailData:
-        pass
-
-    def add_user(self, username: str, password: str):
         pass
 
     def modify_user(self, info: dict) -> None:
@@ -60,3 +57,13 @@ class ManageUser(IManageUser):
             raise UserNotFound('用户未找到')
 
         return UserDetailData(user)
+
+    def delete_user(self) -> None:
+        user = self._user.query_user_by_id(int(self._user_id))
+        if user is None:
+            raise UserNotFound('用户未找到')
+
+        if user.user_type == 1:
+            raise DeleteAdminError('无法删除管理员账号')
+
+        self._user.delete_user(user)

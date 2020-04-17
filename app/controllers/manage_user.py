@@ -1,7 +1,7 @@
 from flask import Blueprint, request, current_app
 from flask.views import MethodView
 from sqlalchemy.exc import SQLAlchemyError
-from app.models.errors import UserNotFound
+from app.models.errors import UserNotFound, DeleteAdminError
 from app.models.manage_user import ManageUser as MManageUser
 from app.utils import Warp, errors, Permission, auth_require
 
@@ -43,6 +43,23 @@ class ManageUser(MethodView):
             except UserNotFound as e:
                 current_app.logger.error(e)
                 return Warp.fail_warp(201, errors['201'])
+
+    def put(self, user_id):
+        pass
+
+    def delete(self, user_id):
+        try:
+            MManageUser(user_id=user_id).delete_user()
+            return Warp.success_warp('删除成功')
+        except SQLAlchemyError as e:
+            current_app.logger.error(e)
+            return Warp.fail_warp(501, errors['501'])
+        except UserNotFound as e:
+            current_app.logger.error(e)
+            return Warp.fail_warp(201, errors['201'])
+        except DeleteAdminError as e:
+            current_app.logger.error(e)
+            return Warp.fail_warp(406, errors['406'])
 
 
 view = ManageUser.as_view('manage_user')

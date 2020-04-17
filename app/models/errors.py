@@ -12,3 +12,7 @@ class UserHaveExist(Exception):
 
 class PasswordNotSatisfactory(Exception):
     pass
+
+
+class DeleteAdminError(Exception):
+    pass

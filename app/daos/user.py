@@ -1,3 +1,4 @@
+import datetime
 from typing import List, Dict, Any
 from app.daos import db, session_commit
 from app.daos.model import User
@@ -21,6 +22,9 @@ class IUser:
         pass
 
     def get_user_list(self, username: str, page: int, limit: int) -> (List[Dict[str, Any]], int):
+        pass
+
+    def delete_user(self, user: User) -> None:
         pass
 
 
@@ -61,3 +65,7 @@ class DaoUser(IUser):
             user.append(UserListData(item.username, item.nickname, item.user_type).__dict__)
 
         return user, count
+
+    def delete_user(self, user: User) -> None:
+        user.delete_at = datetime.datetime.now()
+        session_commit()
