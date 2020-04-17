@@ -1,6 +1,5 @@
 from app.models.modify_info import ModifyInfo
-from flask import current_app, g
-from app.daos.model import User
+from flask import g
 from app.models.errors import ModifyUserTypeError
 from app.daos.user import IUser, DaoUser
 
