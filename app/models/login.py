@@ -5,10 +5,9 @@ from app.utils import MD5, Token
 
 
 class UserLoginData:
-    def __init__(self, user_id, user_type, user_status, token):
+    def __init__(self, user_id, user_type, token):
         self.user_id = user_id
         self.user_type = user_type
-        self.user_status = user_status
         self.token = token
 
 

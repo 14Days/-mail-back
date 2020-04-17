@@ -1,5 +1,13 @@
+from typing import List, Dict, Any
 from app.daos import db, session_commit
 from app.daos.model import User
+
+
+class UserListData:
+    def __init__(self, username, nickname, user_type):
+        self.username = username
+        self.nickname = nickname
+        self.user_type = user_type
 
 
 class IUser:
@@ -10,6 +18,9 @@ class IUser:
         pass
 
     def add_user(self, username: str, password: str) -> None:
+        pass
+
+    def get_user_list(self, username: str, page: int, limit: int) -> (List[Dict[str, Any]], int):
         pass
 
 
@@ -31,5 +42,22 @@ class DaoUser(IUser):
         db.session.add(user)
         session_commit()
 
-    def get_user_list(self):
-        pass
+    def get_user_list(self, username: str, page: int, limit: int) -> (List[Dict[str, Any]], int):
+        # 查看是否是查找过滤模式
+        if username is None:
+            sql = User.query. \
+                filter(User.delete_at.is_(None)). \
+                filter(User.user_type != 1)
+        else:
+            sql = User.query. \
+                filter(User.delete_at.is_(None)). \
+                filter(User.user_type != 1). \
+                filter(User.username.like('%{}%'.format(username)))
+        temp = sql.limit(limit).offset(page * limit).all()
+        count = sql.count()
+
+        user: List[Dict[str, Any]] = []
+        for item in temp:
+            user.append(UserListData(item.username, item.nickname, item.user_type).__dict__)
+
+        return user, count

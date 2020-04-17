@@ -1,17 +1,41 @@
-from flask import Blueprint
+from flask import Blueprint, request, current_app
 from flask.views import MethodView
+from sqlalchemy.exc import SQLAlchemyError
+from app.models.manage_user import ManageUser as MManageUser
+from app.utils import Warp, errors, Permission, auth_require
 
 manage_user = Blueprint('manage_user', __name__)
 
 
 class ManageUser(MethodView):
+    decorators = [auth_require(Permission.ADMIN)]
+
     def get(self, user_id):
         if user_id is None:
-            pass
+            # 获取所有用户信息
+            args = request.args
+            username = args.get('username')
+            # 做类型验证
+            try:
+                current_app.logger.debug(args.get('limit'))
+                limit = int(args.get('limit'))
+            except (TypeError, ValueError):
+                limit = 10
+            try:
+                page = int(args.get('page'))
+            except (TypeError, ValueError):
+                page = 0
+
+            try:
+                res = MManageUser(username=username, page=page, limit=limit).get_all_user()
+                return Warp.success_warp(res.__dict__)
+            except SQLAlchemyError as e:
+                current_app.logger.error(e)
+                return Warp.fail_warp(501, errors['501'])
         else:
             pass
 
 
-manage_user.add_url_rule('/user', defaults={'user_id': None}, view_func=ManageUser.as_view('manage_user'),
-                         methods=['GET'])
-manage_user.add_url_rule('/user', view_func=ManageUser.as_view('manage_user'), methods=['POST'])
+view = ManageUser.as_view('manage_user')
+manage_user.add_url_rule('/user', defaults={'user_id': None}, view_func=view, methods=['GET'])
+manage_user.add_url_rule('/user', view_func=view, methods=['POST'])
