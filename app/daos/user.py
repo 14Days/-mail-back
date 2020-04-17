@@ -27,6 +27,9 @@ class IUser:
     def delete_user(self, user: User) -> None:
         pass
 
+    def change_user(self, uid: int, user_type: int, password: str, sex) -> None:
+        pass
+
 
 class DaoUser(IUser):
     def query_user_by_username(self, username):
@@ -69,3 +72,10 @@ class DaoUser(IUser):
     def delete_user(self, user: User) -> None:
         user.delete_at = datetime.datetime.now()
         session_commit()
+
+    def change_user(self, uid: int, user_type: int, nickname: str, sex) -> None:
+        user = self.query_user_by_id(uid)
+        user.user_type = user_type
+        user.nickname = nickname
+        user.sex = sex
+        db.session.commit()

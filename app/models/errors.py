@@ -24,3 +24,7 @@ class PropertyNotExist(Exception):
 
 class ModifyAdminError(Exception):
     pass
+
+
+class ModifyUserTypeError(Exception):
+    pass
