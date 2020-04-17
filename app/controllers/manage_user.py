@@ -1,7 +1,8 @@
 from flask import Blueprint, request, current_app
 from flask.views import MethodView
 from sqlalchemy.exc import SQLAlchemyError
-from app.models.errors import UserNotFound, DeleteAdminError, ModifyAdminError, PropertyNotExist
+from app.models.errors import UserNotFound, DeleteAdminError, ModifyAdminError, PropertyNotExist, \
+    PasswordNotSatisfactory
 from app.models.manage_user import ManageUser as MManageUser
 from app.utils import Warp, errors, Permission, auth_require
 
@@ -48,7 +49,7 @@ class ManageUser(MethodView):
         try:
             MManageUser(user_id=user_id).modify_user(request.json)
             return Warp.success_warp('修改成功')
-        except (TypeError, PropertyNotExist) as e:
+        except (TypeError, ValueError, PropertyNotExist) as e:
             current_app.logger.error(e)
             return Warp.fail_warp(302, str(e))
         except SQLAlchemyError as e:
@@ -60,6 +61,9 @@ class ManageUser(MethodView):
         except ModifyAdminError as e:
             current_app.logger.error(e)
             return Warp.fail_warp(406, errors['406'])
+        except PasswordNotSatisfactory as e:
+            current_app.logger.error(e)
+            return Warp.fail_warp(203, errors['203'])
 
     def delete(self, user_id):
         try:
