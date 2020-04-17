@@ -17,13 +17,13 @@ class ILogin:
 
 
 class Login(ILogin):
-    user: IUser
+    _user: IUser
 
     def __init__(self):
-        self.user = DaoUser()
+        self._user = DaoUser()
 
     def user_login(self, username: str, password: str) -> UserLoginData:
-        user = self.user.query_user_by_username(username)
+        user = self._user.query_user_by_username(username)
         if user is None:
             raise UserNotFound('用户未找到')
         current_app.logger.debug(MD5.encode_md5(password))

@@ -4,3 +4,11 @@ class UserNotFound(Exception):
 
 class PasswordError(Exception):
     pass
+
+
+class UserHaveExist(Exception):
+    pass
+
+
+class PasswordNotSatisfactory(Exception):
+    pass
