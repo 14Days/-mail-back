@@ -31,4 +31,4 @@ class Login(ILogin):
         if user.password != MD5.encode_md5(password):
             raise PasswordError('用户密码错误')
 
-        return UserLoginData(user.id, user.user_type, user.user_status, Token.create_token(user.id, user.user_type))
+        return UserLoginData(user.id, user.user_type, Token.create_token(user.id, user.user_type))

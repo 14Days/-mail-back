@@ -1,4 +1,4 @@
-from app.daos import db
+from app.daos import db, session_commit
 from app.daos.model import User
 
 
@@ -29,4 +29,7 @@ class DaoUser(IUser):
     def add_user(self, username: str, password: str) -> None:
         user = User(username=username, password=password)
         db.session.add(user)
-        db.session.commit()
+        session_commit()
+
+    def get_user_list(self):
+        pass
