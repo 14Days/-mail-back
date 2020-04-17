@@ -1,7 +1,8 @@
-from flask import current_app
+from flask import current_app, g
 from app.daos.model import User
 from app.daos.user import IUser, DaoUser
-from app.models.errors import UserNotFound, DeleteAdminError
+from app.models.errors import UserNotFound, DeleteAdminError, ModifyAdminError
+from app.models.modify_info import ModifyInfo
 
 
 class UserListData:
@@ -17,6 +18,23 @@ class UserDetailData:
         self.nickname = user.nickname
         self.sex = user.sex
         self.user_type = user.user_type
+
+
+class AdminModifyInfo(ModifyInfo):
+    _dao_user: IUser
+
+    def __init__(self, user_id, data):
+        self._data = data
+        self._dao_user = DaoUser()
+        self._user = self._dao_user.query_user_by_id(user_id)
+        if self._user is None:
+            raise UserNotFound('用户未找到')
+
+        if self._user.user_type == 1 and g.user_id != user_id:
+            raise ModifyAdminError('无法修改管理员账号')
+
+        self._handle_dict()
+        self._commit()
 
 
 class IManageUser:
@@ -57,6 +75,9 @@ class ManageUser(IManageUser):
             raise UserNotFound('用户未找到')
 
         return UserDetailData(user)
+
+    def modify_user(self, info: dict) -> None:
+        AdminModifyInfo(self._user_id, info)
 
     def delete_user(self) -> None:
         user = self._user.query_user_by_id(int(self._user_id))

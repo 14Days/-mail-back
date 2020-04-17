@@ -16,3 +16,11 @@ class PasswordNotSatisfactory(Exception):
 
 class DeleteAdminError(Exception):
     pass
+
+
+class PropertyNotExist(Exception):
+    pass
+
+
+class ModifyAdminError(Exception):
+    pass
