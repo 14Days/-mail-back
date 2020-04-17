@@ -1,3 +1,4 @@
+from app.daos import db
 from app.daos.model import User
 
 
@@ -6,6 +7,9 @@ class IUser:
         pass
 
     def query_user_by_id(self, uid: int) -> User:
+        pass
+
+    def add_user(self, username: str, password: str) -> None:
         pass
 
 
@@ -21,3 +25,8 @@ class DaoUser(IUser):
             filter_by(id=uid). \
             filter_by(delete_at=None). \
             first()
+
+    def add_user(self, username: str, password: str) -> None:
+        user = User(username=username, password=password)
+        db.session.add(user)
+        db.session.commit()
