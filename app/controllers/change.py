@@ -9,7 +9,7 @@ change = Blueprint('change', __name__)
 
 
 class Change(MethodView):
-    def post(self):
+    def put(self):
         data = request.json
         try:
             MChange().modify_message(data)
