@@ -1,13 +1,15 @@
+import re
 from typing import Dict, Any
 from app.daos import session_commit
 from app.daos.model import User
-from app.models.errors import PropertyNotExist
+from app.models.errors import PropertyNotExist, PasswordNotSatisfactory
 from app.utils import MD5
 
 
 class ModifyInfo:
     _user: User
     _data: Dict[str, Any]
+    _re_password = re.compile(r'(?=.*[A-Za-z])(?=.*[0-9])\w{6,}')
 
     def _handle_dict(self):
         for key, val in self._data.items():
@@ -17,9 +19,13 @@ class ModifyInfo:
             method(val)
 
     def handle_password(self, password):
+        if self._re_password.match(password) is None:
+            raise PasswordNotSatisfactory('密码需要包含字母与数字, 且最少 6 位')
         self._user.password = MD5.encode_md5(password)
 
     def handle_nickname(self, nickname):
+        if nickname == '' or nickname is None:
+            raise ValueError('nickname 不能为空')
         self._user.nickname = nickname
 
     def handle_sex(self, sex):
