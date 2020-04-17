@@ -1,22 +1,24 @@
-import re
+from app.models.modify_info import ModifyInfo
+from flask import current_app, g
+from app.daos.model import User
+from app.models.errors import ModifyUserTypeError
 from app.daos.user import IUser, DaoUser
-from app.models.errors import UserNotFound
 
 
-class IChange:
-    def user_change(self, uid: int, user_type: int, nickname: str, sex: int) -> None:
-        pass
+class ChangeModifyInfo(ModifyInfo):
+    user: IUser
 
-
-class Change(IChange):
-    _user: IUser
-
-    def __init__(self):
+    def __init__(self, data):
+        self._data = data
         self.user = DaoUser()
+        self._user = self.user.query_user_by_id(g.user_id)
+        self._handle_dict()
+        self._commit()
 
-    def user_change(self, uid: int, user_type: int, nickname: str, sex: int) -> None:
-        user = self.user.query_user_by_id(uid)
-        if user is None:
-            raise UserNotFound('用户未找到')
-        self._user.change_user(uid, user_type, nickname, sex)
-        return
+    def handle_user_type(self, user_type):
+        raise ModifyUserTypeError('没有权限修改你的用户类型')
+
+
+class Change:
+    def modify_message(self, data):
+        ChangeModifyInfo(data)
