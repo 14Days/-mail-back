@@ -1,6 +1,7 @@
 from flask import Blueprint, request, current_app
 from flask.views import MethodView
 from sqlalchemy.exc import SQLAlchemyError
+from app.models.errors import UserNotFound
 from app.models.manage_user import ManageUser as MManageUser
 from app.utils import Warp, errors, Permission, auth_require
 
@@ -33,9 +34,17 @@ class ManageUser(MethodView):
                 current_app.logger.error(e)
                 return Warp.fail_warp(501, errors['501'])
         else:
-            pass
+            try:
+                res = MManageUser(user_id=user_id).get_user_detail()
+                return Warp.success_warp(res.__dict__)
+            except SQLAlchemyError as e:
+                current_app.logger.error(e)
+                return Warp.fail_warp(501, errors['501'])
+            except UserNotFound as e:
+                current_app.logger.error(e)
+                return Warp.fail_warp(201, errors['201'])
 
 
 view = ManageUser.as_view('manage_user')
 manage_user.add_url_rule('/user', defaults={'user_id': None}, view_func=view, methods=['GET'])
-manage_user.add_url_rule('/user', view_func=view, methods=['POST'])
+manage_user.add_url_rule('/user/<int:user_id>', view_func=view, methods=['GET', 'PUT', 'DELETE'])

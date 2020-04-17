@@ -1,5 +1,7 @@
 from flask import current_app
+from app.daos.model import User
 from app.daos.user import IUser, DaoUser
+from app.models.errors import UserNotFound
 
 
 class UserListData:
@@ -8,11 +10,20 @@ class UserListData:
         self.count = count
 
 
+class UserDetailData:
+    def __init__(self, user: User):
+        self.id = user.id
+        self.username = user.username
+        self.nickname = user.nickname
+        self.sex = user.sex
+        self.user_type = user.user_type
+
+
 class IManageUser:
     def get_all_user(self) -> UserListData:
         pass
 
-    def get_user_detail(self):
+    def get_user_detail(self) -> UserDetailData:
         pass
 
     def add_user(self, username: str, password: str):
@@ -42,3 +53,10 @@ class ManageUser(IManageUser):
         current_app.logger.debug('username: %s, page: %s, limit: %s', self._username, self._page, self._limit)
         user_list, count = self._user.get_user_list(self._username, self._page, self._limit)
         return UserListData(user_list, count)
+
+    def get_user_detail(self) -> UserDetailData:
+        user = self._user.query_user_by_id(int(self._user_id))
+        if user is None:
+            raise UserNotFound('用户未找到')
+
+        return UserDetailData(user)
