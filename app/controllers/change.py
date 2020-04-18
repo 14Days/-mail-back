@@ -2,7 +2,7 @@ from flask import Blueprint, request, current_app
 from flask.views import MethodView
 from sqlalchemy.exc import SQLAlchemyError
 from app.models.change import Change as MChange
-from app.models.errors import PropertyNotExist, UserNotFound, PasswordNotSatisfactory
+from app.models.errors import PropertyNotExist, PasswordNotSatisfactory
 from app.utils import Warp, errors
 
 change = Blueprint('change', __name__)
