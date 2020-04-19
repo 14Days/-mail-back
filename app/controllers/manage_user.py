@@ -2,7 +2,7 @@ from flask import Blueprint, request, current_app, g
 from flask.views import MethodView
 from sqlalchemy.exc import SQLAlchemyError
 from app.models.errors import UserNotFound, DeleteAdminError, ModifyAdminError, PropertyNotExist, \
-    PasswordNotSatisfactory
+    PasswordNotSatisfactory, ModifyUserTypeError
 from app.models.manage_user import get_manage_user
 from app.utils import Warp, errors
 
@@ -70,6 +70,9 @@ class ManageUser(MethodView):
             current_app.logger.error(e)
             return Warp.fail_warp(203, errors['203'])
         except NotImplementedError as e:
+            current_app.logger.error(e)
+            return Warp.fail_warp(403, errors['403'])
+        except ModifyUserTypeError as e:
             current_app.logger.error(e)
             return Warp.fail_warp(403, errors['403'])
 
