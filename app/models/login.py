@@ -13,7 +13,7 @@ class UserLoginData:
 
 class ILogin:
     def user_login(self, username: str, password: str) -> UserLoginData:
-        pass
+        raise NotImplementedError()
 
 
 class Login(ILogin):

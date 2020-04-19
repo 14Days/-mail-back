@@ -13,22 +13,19 @@ class UserListData:
 
 class IUser:
     def query_user_by_username(self, username: str) -> User:
-        pass
+        raise NotImplementedError()
 
     def query_user_by_id(self, uid: int) -> User:
-        pass
+        raise NotImplementedError()
 
     def add_user(self, username: str, password: str) -> None:
-        pass
+        raise NotImplementedError()
 
     def get_user_list(self, username: str, page: int, limit: int) -> (List[Dict[str, Any]], int):
-        pass
+        raise NotImplementedError()
 
     def delete_user(self, user: User) -> None:
-        pass
-
-    def change_user(self, uid: int, user_type: int, password: str, sex) -> None:
-        pass
+        raise NotImplementedError()
 
 
 class DaoUser(IUser):
@@ -72,10 +69,3 @@ class DaoUser(IUser):
     def delete_user(self, user: User) -> None:
         user.delete_at = datetime.datetime.now()
         session_commit()
-
-    def change_user(self, uid: int, user_type: int, nickname: str, sex) -> None:
-        user = self.query_user_by_id(uid)
-        user.user_type = user_type
-        user.nickname = nickname
-        user.sex = sex
-        db.session.commit()
