@@ -5,7 +5,8 @@ from app.daos.model import User
 
 
 class UserListData:
-    def __init__(self, username, nickname, user_type):
+    def __init__(self, id, username, nickname, user_type):
+        self.id = id
         self.username = username
         self.nickname = nickname
         self.user_type = user_type
@@ -62,7 +63,7 @@ class DaoUser(IUser):
 
         user: List[Dict[str, Any]] = []
         for item in temp:
-            user.append(UserListData(item.username, item.nickname, item.user_type).__dict__)
+            user.append(UserListData(item.id, item.username, item.nickname, item.user_type).__dict__)
 
         return user, count
 
