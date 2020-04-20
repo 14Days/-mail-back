@@ -53,15 +53,15 @@ class ManageIP(MethodView):
 
     def delete(self):
         data = request.json
-        address = data.get('address')
-        if address is None or address == '':
-            current_app.logger.error('ip地址为空 %s', str({
-                'address': address
+        ip_id = data.get('id')
+        if ip_id is None:
+            current_app.logger.error('ip号为空 %s', str({
+                'id': ip_id
             }))
             return Warp.fail_warp(301, errors['301'])
 
         try:
-            MManage().delete_ip(address)
+            MManage().delete_ip(ip_id)
             return Warp.success_warp('ip移除黑名单成功')
         except SQLAlchemyError as e:
             current_app.logger.error(e)

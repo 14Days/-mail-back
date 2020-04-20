@@ -16,7 +16,8 @@ class IIPManage:
     _page: int
     _limit: int
 
-    def __init__(self, address=None, page=0, limit=10):
+    def __init__(self, ip_id=1, address=None, page=0, limit=10):
+        self._ip_id = ip_id
         self._address = address
         self._page = page
         self._limit = limit
@@ -25,7 +26,7 @@ class IIPManage:
     def add_ip(self, address) -> None:
         raise NotImplementedError()
 
-    def delete_ip(self, address) -> None:
+    def delete_ip(self, ip_id) -> None:
         raise NotImplementedError()
 
     def get_ip_list(self) -> IPListData:
@@ -44,14 +45,14 @@ class IPManage(IIPManage):
         self._ip.add_ip(address)
         return
 
-    def delete_ip(self, address) -> None:
-        ip = self._ip.query_ip_by_address(address)
+    def delete_ip(self, ip_id) -> None:
+        ip = self._ip.query_ip_by_id(ip_id)
         if ip is None:
             raise AddressNotExist('ip不存在')
-        self._ip.delete_ip(address)
+        self._ip.delete_ip(ip)
         return
 
     def get_ip_list(self) -> IPListData:
         current_app.logger.debug('address: %s, page: %s, limit: %s', self._address, self._page, self._limit)
-        ip_list, count = self._ip.get_ip_list(self._address, self._page, self._limit)
+        ip_list, count = self._ip.get_ip_list(self._ip_id, self._address, self._page, self._limit)
         return IPListData(ip_list, count)
