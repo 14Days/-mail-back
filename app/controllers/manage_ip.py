@@ -3,12 +3,14 @@ from flask.views import MethodView
 from sqlalchemy.exc import SQLAlchemyError
 from app.models.manage_ip import IPManage as MManage
 from app.models.errors import AddressNotExist, AddressExist, AddressError
-from app.utils import Warp, errors
+from app.utils import Warp, errors, Permission, auth_require
 
 manage_ip = Blueprint('manage_ip', __name__)
 
 
 class ManageIP(MethodView):
+    decorators = [auth_require(Permission.ADMIN)]
+
     def get(self):
         # 获取所有黑名单ip信息
         args = request.args

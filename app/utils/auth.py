@@ -1,5 +1,5 @@
 from functools import wraps
-from flask import g
+from flask import g, current_app
 from app.utils.errors import errors
 from app.utils.warp import Warp
 
@@ -14,6 +14,7 @@ class Permission:
     ROLE_MAP = {
         1: 0x1,
         2: 0x2,
+        3: 0x2
     }
 
 
@@ -22,6 +23,7 @@ def auth_require(role):
         @wraps(func)
         def wrapper(*args, **kwargs):
             user_role = g.user_type
+            current_app.logger.debug(user_role)
             if Permission.ROLE_MAP[int(user_role)] & role != Permission.ROLE_MAP[int(user_role)]:
                 return Warp.fail_warp(403, errors['403']), 401
             return func(*args, **kwargs)
