@@ -15,3 +15,14 @@ class User(db.Model):
     nickname = db.Column(db.String, nullable=False, default='新建用户')
     sex = db.Column(db.Integer, nullable=True, default=1)
     user_type = db.Column(db.Integer, nullable=False, default=2)
+
+
+class Filter(db.Model):
+    """
+    IP列表模型
+    """
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    create_at = db.Column(db.DateTime, nullable=False, default=datetime.datetime.now)
+    update_at = db.Column(db.DateTime, nullable=False, default=datetime.datetime.now, onupdate=datetime.datetime.now)
+    delete_at = db.Column(db.DateTime, nullable=True)
+    address = db.Column(db.String, nullable=False)

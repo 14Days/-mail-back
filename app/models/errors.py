@@ -28,3 +28,15 @@ class ModifyAdminError(Exception):
 
 class ModifyUserTypeError(Exception):
     pass
+
+
+class AddressError(Exception):
+    pass
+
+
+class AddressExist(Exception):
+    pass
+
+
+class AddressNotExist(Exception):
+    pass
