@@ -5,7 +5,8 @@ from app.daos.model import Filter
 
 
 class IPListData:
-    def __init__(self, address):
+    def __init__(self, ip_id, address):
+        self.ip_id = ip_id
         self.address = address
 
 
@@ -13,7 +14,7 @@ class IIP:
     def query_ip_by_address(self, address: str) -> Filter:
         raise NotImplementedError()
 
-    def query_ip_by_id(self, uid: int) -> Filter:
+    def query_ip_by_id(self, ip_id: int) -> Filter:
         raise NotImplementedError()
 
     def add_ip(self, address: str) -> None:
@@ -22,7 +23,7 @@ class IIP:
     def delete_ip(self, ip: Filter) -> None:
         raise NotImplementedError()
 
-    def get_ip_list(self, address: str, page: int, limit: int) -> (List[Dict[str, Any]], int):
+    def get_ip_list(self, ip_id: int, address: str, page: int, limit: int) -> (List[Dict[str, Any]], int):
         raise NotImplementedError()
 
 
@@ -48,7 +49,7 @@ class DaoIP(IIP):
         ip.delete_at = datetime.datetime.now()
         session_commit()
 
-    def get_ip_list(self, address: str, page: int, limit: int) -> (List[Dict[str, Any]], int):
+    def get_ip_list(self, ip_id: int, address: str, page: int, limit: int) -> (List[Dict[str, Any]], int):
         sql = Filter.query. \
             filter(Filter.delete_at.is_(None))
 
@@ -57,6 +58,6 @@ class DaoIP(IIP):
 
         ip_list: List[Dict[str, Any]] = []
         for item in temp:
-            ip_list.append(IPListData(item.address).__dict__)
+            ip_list.append(IPListData(item.id, item.address).__dict__)
 
         return ip_list, count
