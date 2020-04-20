@@ -45,7 +45,7 @@ class DaoIP(IIP):
         session_commit()
 
     def delete_ip(self, ip: Filter) -> None:
-        Filter.delete_at = datetime.datetime.now()
+        ip.delete_at = datetime.datetime.now()
         session_commit()
 
     def get_ip_list(self, address: str, page: int, limit: int) -> (List[Dict[str, Any]], int):

@@ -48,7 +48,7 @@ class IPManage(IIPManage):
         ip = self._ip.query_ip_by_address(address)
         if ip is None:
             raise AddressNotExist('ip不存在')
-        self._ip.delete_ip(address)
+        self._ip.delete_ip(ip)
         return
 
     def get_ip_list(self) -> IPListData:
