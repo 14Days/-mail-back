@@ -10,11 +10,6 @@ manage_ip = Blueprint('manage_ip', __name__)
 
 class ManageIP(MethodView):
     def get(self):
-        if g.user_type != 1:
-            current_app.logger.error('无权限 %s', str({
-                'user_type': g.user_type
-            }))
-            return Warp.fail_warp(403, errors['403'])
         # 获取所有黑名单ip信息
         args = request.args
         try:
@@ -35,11 +30,6 @@ class ManageIP(MethodView):
             return Warp.fail_warp(501, errors['501'])
 
     def post(self):
-        if g.user_type != 1:
-            current_app.logger.error('无权限 %s', str({
-                'user_type': g.user_type
-            }))
-            return Warp.fail_warp(403, errors['403'])
         data = request.json
         address = data.get('address')
         if address is None or address == '':
@@ -49,7 +39,7 @@ class ManageIP(MethodView):
             return Warp.fail_warp(301, errors['301'])
 
         try:
-            MManage().add_black_ip(address)
+            MManage().add_ip(address)
             return Warp.success_warp('拉黑ip成功')
         except SQLAlchemyError as e:
             current_app.logger.error(e)
@@ -62,11 +52,6 @@ class ManageIP(MethodView):
             return Warp.fail_warp(207, errors['207'])
 
     def delete(self):
-        if g.user_type != 1:
-            current_app.logger.error('无权限 %s', str({
-                'user_type': g.user_type
-            }))
-            return Warp.fail_warp(403, errors['403'])
         data = request.json
         address = data.get('address')
         if address is None or address == '':
@@ -76,7 +61,7 @@ class ManageIP(MethodView):
             return Warp.fail_warp(301, errors['301'])
 
         try:
-            MManage().delete_black_ip(address)
+            MManage().delete_ip(address)
             return Warp.success_warp('ip移除黑名单成功')
         except SQLAlchemyError as e:
             current_app.logger.error(e)

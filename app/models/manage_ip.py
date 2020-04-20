@@ -22,10 +22,10 @@ class IIPManage:
         self._limit = limit
         self._ip = DaoIP()
 
-    def add_black_ip(self, address) -> None:
+    def add_ip(self, address) -> None:
         raise NotImplementedError()
 
-    def delete_black_ip(self, address) -> None:
+    def delete_ip(self, address) -> None:
         raise NotImplementedError()
 
     def get_ip_list(self) -> IPListData:
@@ -33,22 +33,22 @@ class IIPManage:
 
 
 class IPManage(IIPManage):
-    _re_IP = re.compile(r'^((25[0-5]|2[0-4]\\d|[1]{1}\\d{1}\\d{1}|[1-9]{1}\\d{1}|\\d{1})($|(?!\\.$)\\.)){4}$')
+    _re_IP = re.compile(r'^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$')
 
-    def add_black_ip(self, address) -> None:
+    def add_ip(self, address) -> None:
         if self._re_IP.match(address) is None:
             raise AddressError('请检查ip地址')
         ip = self._ip.query_ip_by_address(address)
         if ip is not None:
             raise AddressExist('ip已存在')
-        self.add_black_ip(address)
+        self._ip.add_ip(address)
         return
 
-    def delete_black_ip(self, address) -> None:
+    def delete_ip(self, address) -> None:
         ip = self._ip.query_ip_by_address(address)
-        if ip is not None:
+        if ip is None:
             raise AddressNotExist('ip不存在')
-        self.delete_black_ip(address)
+        self._ip.delete_ip(address)
         return
 
     def get_ip_list(self) -> IPListData:
