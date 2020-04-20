@@ -5,7 +5,8 @@ from app.daos.model import User
 
 
 class UserListData:
-    def __init__(self, username, nickname, user_type):
+    def __init__(self, id, username, nickname, user_type):
+        self.id = id
         self.username = username
         self.nickname = nickname
         self.user_type = user_type
@@ -13,22 +14,19 @@ class UserListData:
 
 class IUser:
     def query_user_by_username(self, username: str) -> User:
-        pass
+        raise NotImplementedError()
 
     def query_user_by_id(self, uid: int) -> User:
-        pass
+        raise NotImplementedError()
 
     def add_user(self, username: str, password: str) -> None:
-        pass
+        raise NotImplementedError()
 
     def get_user_list(self, username: str, page: int, limit: int) -> (List[Dict[str, Any]], int):
-        pass
+        raise NotImplementedError()
 
     def delete_user(self, user: User) -> None:
-        pass
-
-    def change_user(self, uid: int, user_type: int, password: str, sex) -> None:
-        pass
+        raise NotImplementedError()
 
 
 class DaoUser(IUser):
@@ -65,17 +63,10 @@ class DaoUser(IUser):
 
         user: List[Dict[str, Any]] = []
         for item in temp:
-            user.append(UserListData(item.username, item.nickname, item.user_type).__dict__)
+            user.append(UserListData(item.id, item.username, item.nickname, item.user_type).__dict__)
 
         return user, count
 
     def delete_user(self, user: User) -> None:
         user.delete_at = datetime.datetime.now()
         session_commit()
-
-    def change_user(self, uid: int, user_type: int, nickname: str, sex) -> None:
-        user = self.query_user_by_id(uid)
-        user.user_type = user_type
-        user.nickname = nickname
-        user.sex = sex
-        db.session.commit()

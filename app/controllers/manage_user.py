@@ -1,18 +1,17 @@
-from flask import Blueprint, request, current_app
+from flask import Blueprint, request, current_app, g
 from flask.views import MethodView
 from sqlalchemy.exc import SQLAlchemyError
 from app.models.errors import UserNotFound, DeleteAdminError, ModifyAdminError, PropertyNotExist, \
-    PasswordNotSatisfactory
-from app.models.manage_user import ManageUser as MManageUser
-from app.utils import Warp, errors, Permission, auth_require
+    PasswordNotSatisfactory, ModifyUserTypeError
+from app.models.manage_user import get_manage_user
+from app.utils import Warp, errors
 
 manage_user = Blueprint('manage_user', __name__)
 
 
 class ManageUser(MethodView):
-    decorators = [auth_require(Permission.ADMIN)]
-
     def get(self, user_id):
+        # 管理员执行方法
         if user_id is None:
             # 获取所有用户信息
             args = request.args
@@ -29,14 +28,17 @@ class ManageUser(MethodView):
                 page = 0
 
             try:
-                res = MManageUser(username=username, page=page, limit=limit).get_all_user()
+                res = get_manage_user(g.user_type, username=username, page=page, limit=limit).get_all_user()
                 return Warp.success_warp(res.__dict__)
             except SQLAlchemyError as e:
                 current_app.logger.error(e)
                 return Warp.fail_warp(501, errors['501'])
+            except NotImplementedError as e:
+                current_app.logger.error(e)
+                return Warp.fail_warp(403, errors['403'])
         else:
             try:
-                res = MManageUser(user_id=user_id).get_user_detail()
+                res = get_manage_user(g.user_type, user_id=user_id).get_user_detail()
                 return Warp.success_warp(res.__dict__)
             except SQLAlchemyError as e:
                 current_app.logger.error(e)
@@ -44,10 +46,13 @@ class ManageUser(MethodView):
             except UserNotFound as e:
                 current_app.logger.error(e)
                 return Warp.fail_warp(201, errors['201'])
+            except NotImplementedError as e:
+                current_app.logger.error(e)
+                return Warp.fail_warp(403, errors['403'])
 
     def put(self, user_id):
         try:
-            MManageUser(user_id=user_id).modify_user(request.json)
+            get_manage_user(g.user_type, user_id=user_id).modify_user(request.json)
             return Warp.success_warp('修改成功')
         except (TypeError, ValueError, PropertyNotExist) as e:
             current_app.logger.error(e)
@@ -64,10 +69,16 @@ class ManageUser(MethodView):
         except PasswordNotSatisfactory as e:
             current_app.logger.error(e)
             return Warp.fail_warp(203, errors['203'])
+        except NotImplementedError as e:
+            current_app.logger.error(e)
+            return Warp.fail_warp(403, errors['403'])
+        except ModifyUserTypeError as e:
+            current_app.logger.error(e)
+            return Warp.fail_warp(403, errors['403'])
 
     def delete(self, user_id):
         try:
-            MManageUser(user_id=user_id).delete_user()
+            get_manage_user(g.user_type, user_id=user_id).delete_user()
             return Warp.success_warp('删除成功')
         except SQLAlchemyError as e:
             current_app.logger.error(e)
@@ -78,6 +89,9 @@ class ManageUser(MethodView):
         except DeleteAdminError as e:
             current_app.logger.error(e)
             return Warp.fail_warp(406, errors['406'])
+        except NotImplementedError as e:
+            current_app.logger.error(e)
+            return Warp.fail_warp(403, errors['403'])
 
 
 view = ManageUser.as_view('manage_user')

@@ -812,7 +812,7 @@ class LMTP(SMTP):
 
 if __name__ == '__main__':
     fromaddr = 'from@runoob.com'
-    toaddrs = ['w1637894214@163.com']
+    toaddrs = ['w1637894214@wghtstudio.cn']
     message = MIMEText('Python 邮件发送测试...', 'plain', 'utf-8')
 
     server = SMTP('localhost', 8025)

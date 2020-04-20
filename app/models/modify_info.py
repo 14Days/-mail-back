@@ -1,8 +1,11 @@
 import re
 from typing import Dict, Any
+from flask import g
 from app.daos import session_commit
 from app.daos.model import User
-from app.models.errors import PropertyNotExist, PasswordNotSatisfactory
+from app.daos.user import IUser, DaoUser
+from app.models.errors import PropertyNotExist, PasswordNotSatisfactory, UserNotFound, ModifyAdminError, \
+    ModifyUserTypeError
 from app.utils import MD5
 
 
@@ -10,6 +13,10 @@ class ModifyInfo:
     _user: User
     _data: Dict[str, Any]
     _re_password = re.compile(r'(?=.*[A-Za-z])(?=.*[0-9])\w{6,}')
+    _dao_user: IUser
+
+    def __init__(self, user_id, data):
+        pass
 
     def _handle_dict(self):
         for key, val in self._data.items():
@@ -40,3 +47,32 @@ class ModifyInfo:
 
     def _commit(self):
         session_commit()
+
+
+class AdminModifyInfo(ModifyInfo):
+    def __init__(self, user_id, data):
+        super().__init__(user_id, data)
+        self._data = data
+        self._dao_user = DaoUser()
+        self._user = self._dao_user.query_user_by_id(user_id)
+        if self._user is None:
+            raise UserNotFound('用户未找到')
+
+        if self._user.user_type == 1 and g.user_id != user_id:
+            raise ModifyAdminError('无法修改管理员账号')
+
+        self._handle_dict()
+        self._commit()
+
+
+class ChangeModifyInfo(ModifyInfo):
+    def __init__(self, user_id, data):
+        super().__init__(user_id, data)
+        self._data = data
+        self._dao_user = DaoUser()
+        self._user = self._dao_user.query_user_by_id(user_id)
+        self._handle_dict()
+        self._commit()
+
+    def handle_user_type(self, user_type):
+        raise ModifyUserTypeError('没有权限修改你的用户类型')

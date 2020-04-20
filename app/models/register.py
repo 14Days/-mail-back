@@ -6,7 +6,7 @@ from app.utils import MD5
 
 class IRegister:
     def create_new_user(self, username, password) -> None:
-        pass
+        raise NotImplementedError()
 
 
 class Register(IRegister):
