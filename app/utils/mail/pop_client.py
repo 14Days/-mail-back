@@ -305,18 +305,9 @@ if HAVE_SSL:
     __all__.append("POP3_SSL")
 
 if __name__ == "__main__":
-    import sys
-
-    a = POP3(sys.argv[1])
+    a = POP3('localhost', 8026)
     print(a.getwelcome())
-    a.user(sys.argv[2])
-    a.pass_(sys.argv[3])
-    a.list()
-    (numMsgs, totalSize) = a.stat()
-    for i in range(1, numMsgs + 1):
-        (header, msg, octets) = a.retr(i)
-        print("Message %d:" % i)
-        for line in msg:
-            print('   ' + str(line))
-        print('-----------------------')
+    a.user('zjgnp@wghtstudio.cn')
+    print(a.pass_('d585642a4d945227a64cba9baa0afca7'))
+    print(a.stat())
     a.quit()
