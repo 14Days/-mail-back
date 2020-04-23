@@ -815,7 +815,7 @@ if __name__ == '__main__':
     toaddrs = ['zjgnp@wghtstudio.cn']
     message = MIMEText('Python 邮件发送测试...', 'plain', 'utf-8')
 
-    server = SMTP('localhost', 8025)
+    server = SMTP('127.0.0.1', 8025)
     server.set_debuglevel(1)
     server.sendmail(fromaddr, toaddrs, message.as_string())
     server.quit()

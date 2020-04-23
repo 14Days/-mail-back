@@ -309,5 +309,5 @@ if __name__ == "__main__":
     print(a.getwelcome())
     a.user('zjgnp@wghtstudio.cn')
     print(a.pass_('d585642a4d945227a64cba9baa0afca7'))
-    print(a.stat())
-    a.quit()
+    print(a.retr(1))
+    print(a.quit())
