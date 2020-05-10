@@ -50,5 +50,3 @@ class NoReceivers(Exception):
     pass
 
 
-class ContentIsNone(Exception):
-    pass

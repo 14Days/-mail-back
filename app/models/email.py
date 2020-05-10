@@ -1,7 +1,8 @@
+from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.header import Header
-from app.models.errors import NoReceivers, NoSender, ContentIsNone
-from app.utils.mail.smtp_client import SMTP
+from app.models.errors import NoReceivers, NoSender
+from app.utils.mail.smtp_client import SMTP, SMTPException
 
 
 class MailListData:
@@ -35,9 +36,7 @@ class IEmail:
 class AdminEmail(IEmail):
     def send_mail(self, from_add=None, to_addr=None, content=None, subject=None) -> None:
         server_address = 'localhost'
-        if content is None:
-            raise ContentIsNone('内容为空了')
-        message = MIMEText(content, 'plain', 'utf-8')
+        message = MIMEMultipart()
         if from_add is None:
             raise NoSender('没有发件人')
         message['From'] = Header(from_add, 'utf-8')
@@ -47,17 +46,25 @@ class AdminEmail(IEmail):
         if subject is None:
             subject = '无主题'
         message['Subject'] = Header(subject, 'utf-8')
+        if content is None:
+            content = ""
+
+        message.attach(MIMEText(content, 'plain', 'utf-8'))
+
         server = SMTP(server_address, 8025)
         server.set_debuglevel(1)
         server.sendmail(from_add, to_addr, message.as_string())
         server.quit()
+
         return
 
-    def receive_mail(self) -> None:
-        return
 
-    def get_mail_list(self) -> MailListData:
-        return
+def receive_mail(self) -> None:
+    return
+
+
+def get_mail_list(self) -> MailListData:
+    return
 
 
 class UserEmail(IEmail):
