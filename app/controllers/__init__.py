@@ -23,4 +23,4 @@ def register_router(app: Flask):
     app.register_blueprint(manage_ip)
     # 收发邮件
     jwt_middleware(mail)
-    app.register_blueprint(mail)
+    app.register_blueprint(mail, url_prefix='/mail')

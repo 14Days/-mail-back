@@ -34,10 +34,12 @@ class Mail(MethodView):
             except NotImplementedError as e:
                 current_app.logger.error(e)
                 return Warp.fail_warp(403, errors['403'])
+        else:
+            pass
 
     def post(self):
         pass
 
 
 view = Mail.as_view('mail')
-mail.add_url_rule('/mail', defaults={'name': None}, view_func=view, methods=['GET'])
+mail.add_url_rule('/receive', defaults={'name': None}, view_func=view, methods=['GET'])
