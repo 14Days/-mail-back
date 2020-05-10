@@ -2,6 +2,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.header import Header
 from flask import current_app
+from app.basic import Config
 from app.daos.mail import IMail, DaoMail
 from app.models.errors import NoReceivers, NoSender
 from app.utils.mail.smtp_client import SMTP
@@ -17,6 +18,7 @@ class IEmail:
     _page: int
     _limit: int
     _mail: IMail
+    _server_address: str = ''
 
     def __init__(self, user_id, from_addr=None, to_addr=None, content=None, subject=None, page=0, limit=10):
         self._user_id = user_id
@@ -26,6 +28,7 @@ class IEmail:
         self._subject = subject
         self._page = page
         self._limit = limit
+        self._server_address = Config.get_instance()['protocol']
         self._mail = DaoMail()
 
     def send_mail(self, from_addr=None, to_addr=None, content=None, subject=None) -> None:
@@ -40,7 +43,6 @@ class IEmail:
 
 class AdminEmail(IEmail):
     def send_mail(self, from_add=None, to_addr=None, content=None, subject=None) -> None:
-        server_address = 'localhost'
         message = MIMEMultipart()
         if from_add is None:
             raise NoSender('没有发件人')
@@ -56,7 +58,7 @@ class AdminEmail(IEmail):
 
         message.attach(MIMEText(content, 'plain', 'utf-8'))
 
-        server = SMTP(server_address, 8025)
+        server = SMTP(self._server_address, 8025)
         server.set_debuglevel(1)
         server.sendmail(from_add, to_addr, message.as_string())
         server.quit()
