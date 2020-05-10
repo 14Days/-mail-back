@@ -64,9 +64,7 @@ class DaoMail(IMail):
             raise RuntimeError('用户不存在')
 
         # 过滤用户删除
-        temp: List[UserMail] = user.to_list
-
-        mail = list(filter(lambda x: x is not None, map(deal_func, temp)))
+        mail = list(filter(lambda x: x is not None, map(deal_func, user.to_list)))
         mail.reverse()
 
         return len(mail), mail
