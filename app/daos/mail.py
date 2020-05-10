@@ -87,4 +87,7 @@ class DaoMail(IMail):
         return count, mail
 
     def get_mail_by_id(self, mail_id: int) -> Mail:
-        pass
+        return Mail.query. \
+            filter(Mail.id == mail_id). \
+            filter(Mail.delete_at.is_(None)). \
+            first()

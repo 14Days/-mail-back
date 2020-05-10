@@ -1,6 +1,8 @@
+import email
+from email.header import Header
 from flask import current_app
-from app.daos.model import User
 from app.daos.mail import IMail, DaoMail
+from app.models.errors import MailNotExist
 
 
 class MailListData:
@@ -10,7 +12,7 @@ class MailListData:
 
 
 class MailDetailData:
-    def __int__(self, from_addr=None, to_addr=None, content=None, subject=None, time=None):
+    def __init__(self, from_addr=None, to_addr=None, content=None, subject=None, time=None):
         self.from_addr = from_addr
         self.to_addr = to_addr
         self.content = content
@@ -30,9 +32,6 @@ class IEmail:
         self._limit = limit
         self._mail = DaoMail()
 
-    def _get_detail(self):
-        pass
-
     def get_mail_list(self) -> MailListData:
         raise NotImplementedError()
 
@@ -47,7 +46,25 @@ class AdminEmail(IEmail):
         return MailListData(res=mail, count=count)
 
     def get_mail_detail(self, mail_id: int) -> MailDetailData:
-        pass
+        mail = self._mail.get_mail_by_id(mail_id)
+        if mail is None:
+            raise MailNotExist('邮件不存在')
+
+        message = email.message_from_string(mail.content)
+
+        content = ''
+        for part in message.walk():
+            print(part)
+            if not part.is_multipart():
+                content = part.get_payload(decode=True)
+
+        return MailDetailData(
+            from_addr=f'{mail.user.username}@wghtstudio.cn',
+            to_addr=list(map(lambda x: f'{x.to_user.username}@wghtstudio.cn', mail.to_user)),
+            content=str(content, encoding='utf-8'),
+            subject=mail.title,
+            time=mail.create_at.strftime('%Y-%m-%d %H:%M')
+        )
 
 
 class UserEmail(IEmail):

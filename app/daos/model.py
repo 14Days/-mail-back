@@ -37,6 +37,7 @@ class Mail(db.Model):
     delete_at = db.Column(db.DateTime, nullable=True)
     title = db.Column(db.String, nullable=False, default='无标题')
     file_name = db.Column(db.String, nullable=False)
+    content = db.Column(db.String, nullable=True)
     size = db.Column(db.Integer, nullable=False)
     # dir_name_id = db.Column(db.Integer, db.ForeignKey('dir_name.id'))
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
@@ -47,4 +48,4 @@ class UserMail(db.Model):
     to_user_id = db.Column(db.Integer, db.ForeignKey('user.id'), name='to', nullable=False, primary_key=True)
     mail_id = db.Column(db.Integer, db.ForeignKey('mail.id'), nullable=False, primary_key=True)
     is_to_del = db.Column(db.Integer, nullable=False, default=0)
-    mail = db.relationship('Mail', foreign_keys=[mail_id])
+    mail = db.relationship('Mail', backref='to_user', foreign_keys=[mail_id])
