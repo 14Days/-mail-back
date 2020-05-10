@@ -1,7 +1,5 @@
 from email.mime.text import MIMEText
 from email.header import Header
-from flask import current_app, g
-import re
 from app.models.errors import NoReceivers, NoSender, ContentIsNone
 from app.utils.mail.smtp_client import SMTP
 
@@ -34,8 +32,7 @@ class IEmail:
         raise NotImplementedError
 
 
-class Email(IEmail):
-
+class AdminEmail(IEmail):
     def send_mail(self, from_add=None, to_addr=None, content=None, subject=None) -> None:
         server_address = 'localhost'
         if content is None:
@@ -61,3 +58,7 @@ class Email(IEmail):
 
     def get_mail_list(self) -> MailListData:
         return
+
+
+class UserEmail(IEmail):
+    pass
