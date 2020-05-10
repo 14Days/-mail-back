@@ -3,11 +3,11 @@ from app.daos.model import Mail
 
 
 class MailData:
-    def __init__(self, from_user, title, send_time, name):
+    def __init__(self, from_user, title, send_time, mail_id):
         self.from_user = from_user
         self.title = title
         self.send_time = send_time
-        self.name = name
+        self.mail_id = mail_id
 
 
 class IMail:
@@ -34,7 +34,7 @@ class DaoMail(IMail):
         mail: List[Dict[str, Any]] = []
         for item in temp:
             mail.append(MailData(item.user.nickname, item.title, item.create_at.strftime('%Y-%m-%d %H:%M'),
-                                 item.file_name).__dict__)
+                                 item.id).__dict__)
 
         return count, mail
 
@@ -50,6 +50,6 @@ class DaoMail(IMail):
         mail: List[Dict[str, Any]] = []
         for item in temp:
             mail.append(MailData(item.user.nickname, item.title, item.create_at.strftime('%Y-%m-%d %H:%M'),
-                                 item.file_name).__dict__)
+                                 item.id).__dict__)
 
         return count, mail

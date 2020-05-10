@@ -8,9 +8,9 @@ mail = Blueprint('mail', __name__)
 
 
 class Mail(MethodView):
-    def get(self, name: str):
-        current_app.logger.debug(name)
-        if name is None:
+    def get(self, mail_id: str):
+        current_app.logger.debug(mail_id)
+        if mail_id is None:
             # 获取所有邮件列表
             args = request.args
             subject = args.get('subject')
@@ -42,4 +42,4 @@ class Mail(MethodView):
 
 
 view = Mail.as_view('mail')
-mail.add_url_rule('/receive', defaults={'name': None}, view_func=view, methods=['GET'])
+mail.add_url_rule('/receive', defaults={'mail_id': None}, view_func=view, methods=['GET'])

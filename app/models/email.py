@@ -14,6 +14,15 @@ class MailListData:
         self.count = count
 
 
+class MailDetailData:
+    def __int__(self, from_addr=None, to_addr=None, content=None, subject=None, time=None):
+        self.from_addr = from_addr
+        self.to_addr = to_addr
+        self.content = content
+        self.subject = subject
+        self.time = time
+
+
 class IEmail:
     _page: int
     _limit: int
@@ -38,6 +47,9 @@ class IEmail:
         raise NotImplementedError()
 
     def get_mail_list(self) -> MailListData:
+        raise NotImplementedError()
+
+    def get_mail_detail(self, mail_id: int) -> MailDetailData:
         raise NotImplementedError()
 
 
@@ -72,6 +84,9 @@ class AdminEmail(IEmail):
         current_app.logger.debug(self._user_id)
         count, mail = self._mail.get_all_email(title=self._subject, limit=self._limit, page=self._page)
         return MailListData(res=mail, count=count)
+
+    def get_mail_detail(self, mail_id: int) -> MailDetailData:
+        pass
 
 
 class UserEmail(IEmail):
