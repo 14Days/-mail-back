@@ -16,6 +16,7 @@ class User(db.Model):
     sex = db.Column(db.Integer, nullable=True, default=1)
     user_type = db.Column(db.Integer, nullable=False, default=2)
     mails = db.relationship('Mail', backref='user', lazy=True)
+    to_list: list = db.relationship('UserMail', backref='to_user', foreign_keys='UserMail.to_user_id')
 
 
 class Filter(db.Model):
@@ -40,3 +41,10 @@ class Mail(db.Model):
     # dir_name_id = db.Column(db.Integer, db.ForeignKey('dir_name.id'))
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     is_from_del = db.Column(db.Integer, nullable=False, default=0)
+
+
+class UserMail(db.Model):
+    to_user_id = db.Column(db.Integer, db.ForeignKey('user.id'), name='to', nullable=False, primary_key=True)
+    mail_id = db.Column(db.Integer, db.ForeignKey('mail.id'), nullable=False, primary_key=True)
+    is_to_del = db.Column(db.Integer, nullable=False, default=0)
+    mail = db.relationship('Mail', foreign_keys=[mail_id])

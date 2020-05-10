@@ -91,7 +91,7 @@ class AdminEmail(IEmail):
 
 class UserEmail(IEmail):
     def get_mail_list(self) -> MailListData:
-        count, mail = self._mail.get_user_email(user_id=self._user_id, limit=self._limit, page=self._page)
+        count, mail = self._mail.get_receive_mail(user_id=self._user_id, limit=self._limit, page=self._page)
         return MailListData(res=mail, count=count)
 
 

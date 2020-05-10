@@ -1,5 +1,5 @@
 from typing import Tuple, List, Dict, Any
-from app.daos.model import Mail
+from app.daos.model import Mail, User, UserMail
 
 
 class MailData:
@@ -14,7 +14,15 @@ class IMail:
     def get_all_email(self, title: str, page: int, limit: int) -> Tuple[int, list]:
         raise NotImplementedError()
 
+    def get_receive_mail(self, user_id: int, page: int, limit: int) -> Tuple[int, list]:
+        """收件箱列表方法"""
+        raise NotImplementedError()
+
     def get_user_email(self, user_id: int, page: int, limit: int) -> Tuple[int, list]:
+        """发件箱获取列表方法"""
+        raise NotImplementedError()
+
+    def get_mail_by_id(self, mail_id: int) -> Mail:
         raise NotImplementedError()
 
 
@@ -35,8 +43,29 @@ class DaoMail(IMail):
         for item in temp:
             mail.append(MailData(item.user.nickname, item.title, item.create_at.strftime('%Y-%m-%d %H:%M'),
                                  item.id).__dict__)
+        mail.reverse()
 
         return count, mail
+
+    def get_receive_mail(self, user_id: int, page: int, limit: int) -> Tuple[int, list]:
+        user = User.query. \
+            filter(User.id == user_id). \
+            filter(User.delete_at.is_(None)). \
+            first()
+        if user is None:
+            raise RuntimeError('用户不存在')
+
+        temp: List[UserMail] = user.to_list
+        temp = list(filter(lambda x: x.is_to_del == 0, temp))
+
+        mail: List[Dict[str, Any]] = []
+        for item in temp:
+            temp_mail: Mail = item.mail
+            mail.append(MailData(temp_mail.user.nickname, temp_mail.title, temp_mail.create_at.strftime('%Y-%m-%d %H:%M'),
+                                 temp_mail.id).__dict__)
+        mail.reverse()
+
+        return len(mail), mail
 
     def get_user_email(self, user_id: int, page: int, limit: int) -> Tuple[int, list]:
         sql = Mail.query. \
@@ -51,5 +80,9 @@ class DaoMail(IMail):
         for item in temp:
             mail.append(MailData(item.user.nickname, item.title, item.create_at.strftime('%Y-%m-%d %H:%M'),
                                  item.id).__dict__)
+        mail.reverse()
 
         return count, mail
+
+    def get_mail_by_id(self, mail_id: int) -> Mail:
+        pass
