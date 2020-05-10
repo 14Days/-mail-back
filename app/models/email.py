@@ -73,7 +73,9 @@ class AdminEmail(IEmail):
 
 
 class UserEmail(IEmail):
-    pass
+    def get_mail_list(self) -> MailListData:
+        count, mail = self._mail.get_user_email(user_id=self._user_id, limit=self._limit, page=self._page)
+        return MailListData(res=mail, count=count)
 
 
 def get_email(user_type: int, user_id=None, subject=None, page=0, limit=10) -> IEmail.__class__:

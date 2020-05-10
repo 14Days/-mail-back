@@ -1,5 +1,4 @@
 from typing import Tuple, List, Dict, Any
-from app.daos import db
 from app.daos.model import Mail
 
 
@@ -15,7 +14,7 @@ class IMail:
     def get_all_email(self, title: str, page: int, limit: int) -> Tuple[int, list]:
         raise NotImplementedError()
 
-    def get_user_email(self) -> Tuple[int, dict]:
+    def get_user_email(self, user_id: int, page: int, limit: int) -> Tuple[int, list]:
         raise NotImplementedError()
 
 
@@ -29,6 +28,22 @@ class DaoMail(IMail):
             sql = Mail.query. \
                 filter(Mail.delete_at.is_(None)). \
                 filter(Mail.title.like('%{}%'.format(title)))
+        temp: List[Mail] = sql.limit(limit).offset(page * limit).all()
+        count: int = sql.count()
+
+        mail: List[Dict[str, Any]] = []
+        for item in temp:
+            mail.append(MailData(item.user.nickname, item.title, item.create_at.strftime('%Y-%m-%d %H:%M'),
+                                 item.file_name).__dict__)
+
+        return count, mail
+
+    def get_user_email(self, user_id: int, page: int, limit: int) -> Tuple[int, list]:
+        sql = Mail.query. \
+            filter(Mail.delete_at.is_(None)). \
+            filter(Mail.is_from_del == 0). \
+            filter(Mail.user_id == user_id)
+
         temp: List[Mail] = sql.limit(limit).offset(page * limit).all()
         count: int = sql.count()
 
