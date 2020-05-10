@@ -14,7 +14,7 @@ class IMail:
     def get_all_email(self, title: str, page: int, limit: int) -> Tuple[int, list]:
         raise NotImplementedError()
 
-    def get_receive_mail(self, user_id: int, page: int, limit: int) -> Tuple[int, list]:
+    def get_receive_mail(self, title: str, user_id: int, page: int, limit: int) -> Tuple[int, list]:
         """收件箱列表方法"""
         raise NotImplementedError()
 
@@ -47,7 +47,7 @@ class DaoMail(IMail):
 
         return count, mail
 
-    def get_receive_mail(self, user_id: int, page: int, limit: int) -> Tuple[int, list]:
+    def get_receive_mail(self, title: str, user_id: int, page: int, limit: int) -> Tuple[int, list]:
         # 处理函数
         def deal_func(x):
             temp_mail = x.mail
@@ -65,6 +65,8 @@ class DaoMail(IMail):
 
         # 过滤用户删除
         mail = list(filter(lambda x: x is not None, map(deal_func, user.to_list)))
+        if title is not None:
+            mail = list(filter(lambda x: x['title'].find(title) != -1, mail))
         mail.reverse()
 
         return len(mail), mail

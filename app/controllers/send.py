@@ -4,7 +4,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from app.models.email import get_email
 from app.utils import Warp, errors
 
-mail = Blueprint('mail', __name__)
+mail = Blueprint('send', __name__)
 
 
 class Send(MethodView):
