@@ -48,6 +48,14 @@ class DaoMail(IMail):
         return count, mail
 
     def get_receive_mail(self, user_id: int, page: int, limit: int) -> Tuple[int, list]:
+        # 处理函数
+        def deal_func(x):
+            temp_mail = x.mail
+            if x.is_to_del == 0:
+                return MailData(temp_mail.user.nickname, temp_mail.title,
+                                temp_mail.create_at.strftime('%Y-%m-%d %H:%M'),
+                                temp_mail.id).__dict__
+
         user = User.query. \
             filter(User.id == user_id). \
             filter(User.delete_at.is_(None)). \
@@ -55,14 +63,10 @@ class DaoMail(IMail):
         if user is None:
             raise RuntimeError('用户不存在')
 
+        # 过滤用户删除
         temp: List[UserMail] = user.to_list
-        temp = list(filter(lambda x: x.is_to_del == 0, temp))
 
-        mail: List[Dict[str, Any]] = []
-        for item in temp:
-            temp_mail: Mail = item.mail
-            mail.append(MailData(temp_mail.user.nickname, temp_mail.title, temp_mail.create_at.strftime('%Y-%m-%d %H:%M'),
-                                 temp_mail.id).__dict__)
+        mail = list(filter(lambda x: x is not None, map(deal_func, temp)))
         mail.reverse()
 
         return len(mail), mail
