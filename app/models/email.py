@@ -28,7 +28,7 @@ class IEmail:
         self._subject = subject
         self._page = page
         self._limit = limit
-        self._server_address = Config.get_instance()['protocol']
+        self._server_address = Config.get_instance()['protocol_addr']
         self._mail = DaoMail()
 
     def send_mail(self, from_addr=None, to_addr=None, content=None, subject=None) -> None:
@@ -38,7 +38,7 @@ class IEmail:
         raise NotImplementedError()
 
     def get_mail_list(self) -> MailListData:
-        raise NotImplementedError
+        raise NotImplementedError()
 
 
 class AdminEmail(IEmail):
