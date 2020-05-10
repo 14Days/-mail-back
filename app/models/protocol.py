@@ -1,6 +1,7 @@
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.header import Header
+from functools import reduce
 from app.basic import Config
 from app.models.errors import NoReceivers, NoSender
 from app.utils.mail.smtp_client import SMTP
@@ -8,7 +9,7 @@ from app.utils.mail.pop_client import POP3
 
 
 class IProtocol:
-    def get_mail_detail(self, name: str):
+    def get_mail_detail(self, name: str, user):
         raise NotImplementedError()
 
     def send_mail(self, from_addr=None, to_addr=None, content=None, subject=None) -> None:
@@ -22,11 +23,21 @@ class Protocol(IProtocol):
 
     def __init__(self):
         self._server_address = Config.get_instance()['protocol_addr']
-        self.pop_server = POP3(host=self._server_address, port=8026)
-        self.smtp_server = SMTP(host=self._server_address, port=8025)
 
-    def get_mail_detail(self, name: str):
-        pass
+    def get_mail_detail(self, name: str, user):
+        pop = POP3(host=self._server_address, port=8026)
+        pop.user(user.username)
+        pop.pass_(user.password)
+        mail_list = pop.uidl()[1]
+        index = 0
+        for item in mail_list:
+            temp = str(item, encoding='utf-8')
+            temp = temp.split()
+            if temp[1] == name:
+                index = int(temp[0])
+                break
+        content = pop.retr(index)
+        return reduce(lambda x, y: x + y, content[1])
 
     def send_mail(self, from_addr=None, to_addr=None, content=None, subject=None) -> None:
         message = MIMEMultipart()

@@ -1,8 +1,8 @@
 import email
-from email.header import Header
 from flask import current_app
 from app.daos.mail import IMail, DaoMail
-from app.models.errors import MailNotExist
+from app.models.errors import MailNotExist, NotYourMail
+from app.models.protocol import Protocol
 
 
 class MailListData:
@@ -54,7 +54,6 @@ class AdminEmail(IEmail):
 
         content = ''
         for part in message.walk():
-            print(part)
             if not part.is_multipart():
                 content = part.get_payload(decode=True)
 
@@ -74,7 +73,31 @@ class UserEmail(IEmail):
         return MailListData(res=mail, count=count)
 
     def get_mail_detail(self, mail_id: int) -> MailDetailData:
-        pass
+        mail = self._mail.get_mail_by_id(mail_id)
+
+        to_user = None
+        for item in mail.to_user:
+            if item.to_user_id == self._user_id:
+                to_user = item.to_user
+                break
+        if to_user is None:
+            raise NotYourMail('不是你的邮件')
+
+        data = Protocol().get_mail_detail(mail.file_name, to_user)
+        message = email.message_from_bytes(data)
+
+        content = ''
+        for part in message.walk():
+            if not part.is_multipart():
+                content = part.get_payload(decode=True)
+
+        return MailDetailData(
+            from_addr=f'{mail.user.username}@wghtstudio.cn',
+            to_addr=list(map(lambda x: f'{x.to_user.username}@wghtstudio.cn', mail.to_user)),
+            content=str(content, encoding='utf-8'),
+            subject=mail.title,
+            time=mail.create_at.strftime('%Y-%m-%d %H:%M')
+        )
 
 
 def get_email(user_type: int, user_id=None, subject=None, page=0, limit=10) -> IEmail.__class__:

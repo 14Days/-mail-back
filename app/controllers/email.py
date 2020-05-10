@@ -2,7 +2,7 @@ from flask import Blueprint, current_app, request, g
 from flask.views import MethodView
 from sqlalchemy.exc import SQLAlchemyError
 from app.models.email import get_email
-from app.models.errors import MailNotExist
+from app.models.errors import MailNotExist, NotYourMail
 from app.utils import Warp, errors
 
 mail = Blueprint('mail', __name__)
@@ -48,6 +48,9 @@ class Mail(MethodView):
             except MailNotExist as e:
                 current_app.logger.error(e)
                 return Warp.fail_warp(208, errors['208'])
+            except NotYourMail as e:
+                current_app.logger.error(e)
+                return Warp.fail_warp(403, errors['403'])
             except NotImplementedError as e:
                 current_app.logger.error(e)
                 return Warp.fail_warp(403, errors['403'])

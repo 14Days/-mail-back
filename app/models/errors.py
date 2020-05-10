@@ -52,3 +52,7 @@ class NoReceivers(Exception):
 
 class MailNotExist(Exception):
     pass
+
+
+class NotYourMail(Exception):
+    pass
