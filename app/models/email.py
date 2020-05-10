@@ -1,5 +1,7 @@
 from email.mime.text import MIMEText
 from email.header import Header
+from flask import current_app
+from app.daos.mail import IMail, DaoMail
 from app.models.errors import NoReceivers, NoSender, ContentIsNone
 from app.utils.mail.smtp_client import SMTP
 
@@ -13,14 +15,17 @@ class MailListData:
 class IEmail:
     _page: int
     _limit: int
+    _mail: IMail
 
-    def __init__(self, from_addr=None, to_addr=None, content=None, subject=None, page=0, limit=10):
+    def __init__(self, user_id, from_addr=None, to_addr=None, content=None, subject=None, page=0, limit=10):
+        self._user_id = user_id
         self._from_addr = from_addr
         self._to_addr = to_addr
         self._content = content
         self._subject = subject
         self._page = page
         self._limit = limit
+        self._mail = DaoMail()
 
     def send_mail(self, from_addr=None, to_addr=None, content=None, subject=None) -> None:
         raise NotImplementedError()
@@ -57,8 +62,17 @@ class AdminEmail(IEmail):
         return
 
     def get_mail_list(self) -> MailListData:
-        return
+        current_app.logger.debug(self._user_id)
+        count, mail = self._mail.get_all_email(title=self._subject, limit=self._limit, page=self._page)
+        return MailListData(res=mail, count=count)
 
 
 class UserEmail(IEmail):
     pass
+
+
+def get_email(user_type: int, user_id=None, subject=None, page=0, limit=10) -> IEmail.__class__:
+    if user_type == 1:
+        return AdminEmail(user_id=user_id, page=page, limit=limit, subject=subject)
+    else:
+        return UserEmail(user_id=user_id)
