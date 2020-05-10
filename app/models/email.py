@@ -3,6 +3,7 @@ from email.mime.text import MIMEText
 from email.header import Header
 from flask import current_app
 from app.basic import Config
+from app.daos.model import User
 from app.daos.mail import IMail, DaoMail
 from app.models.errors import NoReceivers, NoSender
 from app.utils.mail.smtp_client import SMTP
@@ -27,6 +28,7 @@ class IEmail:
     _page: int
     _limit: int
     _mail: IMail
+    _user: User
     _server_address: str = ''
 
     def __init__(self, user_id, from_addr=None, to_addr=None, content=None, subject=None, page=0, limit=10):
@@ -39,6 +41,9 @@ class IEmail:
         self._limit = limit
         self._server_address = Config.get_instance()['protocol_addr']
         self._mail = DaoMail()
+
+    def _get_detail(self):
+        pass
 
     def send_mail(self, from_addr=None, to_addr=None, content=None, subject=None) -> None:
         raise NotImplementedError()

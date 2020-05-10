@@ -1,5 +1,5 @@
 from typing import Tuple, List, Dict, Any
-from app.daos.model import Mail, User, UserMail
+from app.daos.model import Mail, User
 
 
 class MailData:
