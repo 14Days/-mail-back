@@ -1,5 +1,6 @@
 from typing import Tuple, List, Dict, Any
-from app.daos.model import Mail, User
+from app.daos.model import Mail
+from app.daos.user import DaoUser
 
 
 class MailData:
@@ -56,10 +57,7 @@ class DaoMail(IMail):
                                 temp_mail.create_at.strftime('%Y-%m-%d %H:%M'),
                                 temp_mail.id).__dict__
 
-        user = User.query. \
-            filter(User.id == user_id). \
-            filter(User.delete_at.is_(None)). \
-            first()
+        user = DaoUser().query_user_by_id(user_id)
         if user is None:
             raise RuntimeError('用户不存在')
 

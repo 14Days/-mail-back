@@ -22,7 +22,6 @@ class IEmail:
     _page: int
     _limit: int
     _mail: IMail
-    _user: User
 
     def __init__(self, user_id, subject=None, page=0, limit=10):
         self._user_id = user_id
