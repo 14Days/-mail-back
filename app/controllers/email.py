@@ -34,6 +34,9 @@ class Mail(MethodView):
             except NotImplementedError as e:
                 current_app.logger.error(e)
                 return Warp.fail_warp(403, errors['403'])
+            except RuntimeError as e:
+                current_app.logger.error(e)
+                return Warp.fail_warp(201, errors['201'])
         else:
             pass
 
