@@ -40,3 +40,19 @@ class AddressExist(Exception):
 
 class AddressNotExist(Exception):
     pass
+
+
+class NoSender(Exception):
+    pass
+
+
+class NoReceivers(Exception):
+    pass
+
+
+class MailNotExist(Exception):
+    pass
+
+
+class NotYourMail(Exception):
+    pass
