@@ -5,4 +5,4 @@ SECRET_KEY: gyk199941?
 LEVEL: 30
 SQLALCHEMY_DATABASE_URI: mysql+pymysql://mail:xxw2p3mRH4pJfMk6@wghtstudio.cn:3306/mail
 SQLALCHEMY_TRACK_MODIFICATIONS: false
-protocol_addr: 172.16.48.4
+protocol_addr: mail_protocol

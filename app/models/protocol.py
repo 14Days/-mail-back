@@ -2,6 +2,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.header import Header
 from functools import reduce
+from flask import current_app
 from app.basic import Config
 from app.utils.mail.smtp_client import SMTP
 from app.utils.mail.pop_client import POP3
@@ -24,6 +25,7 @@ class Protocol(IProtocol):
         self._server_address = Config.get_instance()['protocol_addr']
 
     def get_mail_detail(self, name: str, user):
+        current_app.logger.debug(self._server_address)
         pop = POP3(host=self._server_address, port=8026)
         pop.user(user.username)
         pop.pass_(user.password)

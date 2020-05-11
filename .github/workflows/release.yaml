@@ -27,4 +27,4 @@ jobs:
             git pull origin master
             if [ $(docker ps -aq --filter name=mail_server) ]; then docker rm -f mail_server; docker rmi mail_server; fi
             docker build -t 'mail_server' .
-            docker run -d -p 6002:8080 --name=mail_server mail_server
+            docker run -d -p 6002:8080 --mount type=bind,source=/home/zjg/-mail-back/log,target=/app/log --name=mail_server --network my-net mail_server
