@@ -89,8 +89,9 @@ class DaoMail(IMail):
 
         mail: List[Dict[str, Any]] = []
         for item in temp:
-            mail.append(MailData(item.user.nickname, item.title, item.create_at.strftime('%Y-%m-%d %H:%M'),
-                                 item.id).__dict__)
+            mail.append(
+                MailData(item.user.nickname, self._decode_str(item.title), item.create_at.strftime('%Y-%m-%d %H:%M'),
+                         item.id).__dict__)
         mail.reverse()
 
         return count, mail

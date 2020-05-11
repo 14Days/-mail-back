@@ -1,6 +1,6 @@
 import email
 from flask import current_app, g
-
+from email.header import decode_header
 from app.daos.ip import IIP, DaoIP
 from app.daos.mail import IMail, DaoMail
 from app.daos.user import IUser, DaoUser
@@ -38,6 +38,13 @@ class IEmail:
         self._mail = DaoMail()
         self._user = DaoUser()
         self._ip = DaoIP()
+
+    @classmethod
+    def _decode_str(cls, encode: str):
+        value, charset = decode_header(encode)[0]
+        if charset:
+            value = value.decode(charset)
+        return value
 
     def send_mail(self, sender_ip=None, to_addr=None, content=None, subject=None) -> None:
         return
@@ -78,7 +85,7 @@ class AdminEmail(IEmail):
             from_addr=f'{mail.user.username}@wghtstudio.cn',
             to_addr=list(map(lambda x: f'{x.to_user.username}@wghtstudio.cn', mail.to_user)),
             content=str(content, encoding='utf-8'),
-            subject=mail.title,
+            subject=self._decode_str(mail.title),
             time=mail.create_at.strftime('%Y-%m-%d %H:%M')
         )
 
@@ -116,7 +123,7 @@ class UserEmail(IEmail):
             from_addr=f'{mail.user.username}@wghtstudio.cn',
             to_addr=list(map(lambda x: f'{x.to_user.username}@wghtstudio.cn', mail.to_user)),
             content=str(content, encoding='utf-8'),
-            subject=mail.title,
+            subject=self._decode_str(mail.title),
             time=mail.create_at.strftime('%Y-%m-%d %H:%M')
         )
 
