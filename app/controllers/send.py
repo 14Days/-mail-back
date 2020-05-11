@@ -59,18 +59,14 @@ class Send(MethodView):
     def post(self):
         data = request.json
         sender_ip = request.remote_addr
-        from_addr = data.get('sender')
-        to_addr = data.get('receivers')
+        if g.user_type == 2:
+            to_addr = data.get('receivers')
+        else:
+            to_addr = []
         content = data.get('content')
         subject = data.get('subject')
-        if from_addr is None:
-            current_app.logger.error('发件人为空 %s', str({
-                'sender': from_addr,
-            }))
-            return Warp.fail_warp(301, errors['301'])
-
         try:
-            get_email(g.user_type, user_id=g.user_id).send_mail(sender_ip, from_addr, to_addr, content, subject)
+            get_email(g.user_type, user_id=g.user_id).send_mail(sender_ip, to_addr, content, subject)
             return Warp.success_warp('发送成功')
         except SMTPException as e:
             current_app.logger.error(e)

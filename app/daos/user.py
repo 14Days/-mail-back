@@ -80,5 +80,5 @@ class DaoUser(IUser):
             filter(User.user_type != 1)
         to_addr = []
         for item in sql.all():
-            to_addr.append(item.username)
+            to_addr.append(f'{item.username}@wghtstudio.cn')
             return to_addr

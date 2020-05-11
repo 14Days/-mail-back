@@ -1,5 +1,5 @@
 import email
-from flask import current_app
+from flask import current_app, g
 
 from app.daos.ip import IIP, DaoIP
 from app.daos.mail import IMail, DaoMail
@@ -39,7 +39,7 @@ class IEmail:
         self._user = DaoUser()
         self._ip = DaoIP()
 
-    def send_mail(self, sender_ip=None, from_add=None, to_addr=None, content=None, subject=None) -> None:
+    def send_mail(self, sender_ip=None, to_addr=None, content=None, subject=None) -> None:
         return
 
     def get_mail_list(self) -> MailListData:
@@ -50,8 +50,11 @@ class IEmail:
 
 
 class AdminEmail(IEmail):
-    def send_mail(self, sender_ip=None, from_add=None, to_addr=None, content=None, subject=None) -> None:
-        Protocol().send_mail(from_add, self._user.get_all_username(), content, subject)
+    def send_mail(self, sender_ip=None, to_addr=None, content=None, subject=None) -> None:
+        from_addr = f'{self._user.query_user_by_id(g.user_id).username}@wghtstudio.cn'
+        to_addr = self._user.get_all_username()
+        Protocol().send_mail(from_addr, to_addr, content,
+                             subject)
         return
 
     def get_mail_list(self) -> MailListData:
@@ -81,14 +84,15 @@ class AdminEmail(IEmail):
 
 
 class UserEmail(IEmail):
-    def send_mail(self, sender_ip=None, from_add=None, to_addr=None, content=None, subject=None) -> None:
+    def send_mail(self, sender_ip=None, to_addr=None, content=None, subject=None) -> None:
         if self._ip.query_ip_by_address(sender_ip):
             raise AddrIsUseless('您的ip不可用')
         if self._user.query_user_by_id(self._user_id).user_type == 3:
             raise UserIsUseless('您的账户不可用')
         if to_addr is None:
             raise HaveNoReceiver('没有收件人')
-        Protocol().send_mail(from_add, to_addr, content, subject)
+        from_addr = f'{self._user.query_user_by_id(g.user_id).username}@wghtstudio.cn'
+        Protocol().send_mail(from_addr, to_addr, content, subject)
         return
 
     def get_mail_list(self) -> MailListData:
