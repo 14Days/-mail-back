@@ -1,3 +1,4 @@
+from email.header import decode_header
 from typing import Tuple, List, Dict, Any
 from app.daos.model import Mail
 from app.daos.user import DaoUser
@@ -19,7 +20,7 @@ class IMail:
         """收件箱列表方法"""
         raise NotImplementedError()
 
-    def get_user_email(self, user_id: int, page: int, limit: int) -> Tuple[int, list]:
+    def get_send_email(self, user_id: int, page: int, limit: int) -> Tuple[int, list]:
         """发件箱获取列表方法"""
         raise NotImplementedError()
 
@@ -28,6 +29,13 @@ class IMail:
 
 
 class DaoMail(IMail):
+    @classmethod
+    def _decode_str(cls, encode: str):
+        value, charset = decode_header(encode)[0]
+        if charset:
+            value = value.decode(charset)
+        return value
+
     def get_all_email(self, title: str, page: int, limit: int) -> Tuple[int, list]:
         # 查看是否是查找过滤模式
         if title is None:
@@ -42,8 +50,9 @@ class DaoMail(IMail):
 
         mail: List[Dict[str, Any]] = []
         for item in temp:
-            mail.append(MailData(item.user.nickname, item.title, item.create_at.strftime('%Y-%m-%d %H:%M'),
-                                 item.id).__dict__)
+            mail.append(
+                MailData(item.user.nickname, self._decode_str(item.title), item.create_at.strftime('%Y-%m-%d %H:%M'),
+                         item.id).__dict__)
         mail.reverse()
 
         return count, mail
@@ -53,7 +62,7 @@ class DaoMail(IMail):
         def deal_func(x):
             temp_mail = x.mail
             if x.is_to_del == 0:
-                return MailData(temp_mail.user.nickname, temp_mail.title,
+                return MailData(temp_mail.user.nickname, self._decode_str(temp_mail.title),
                                 temp_mail.create_at.strftime('%Y-%m-%d %H:%M'),
                                 temp_mail.id).__dict__
 
@@ -69,7 +78,7 @@ class DaoMail(IMail):
 
         return len(mail), mail
 
-    def get_user_email(self, user_id: int, page: int, limit: int) -> Tuple[int, list]:
+    def get_send_email(self, user_id: int, page: int, limit: int) -> Tuple[int, list]:
         sql = Mail.query. \
             filter(Mail.delete_at.is_(None)). \
             filter(Mail.is_from_del == 0). \
@@ -80,8 +89,9 @@ class DaoMail(IMail):
 
         mail: List[Dict[str, Any]] = []
         for item in temp:
-            mail.append(MailData(item.user.nickname, item.title, item.create_at.strftime('%Y-%m-%d %H:%M'),
-                                 item.id).__dict__)
+            mail.append(
+                MailData(item.user.nickname, self._decode_str(item.title), item.create_at.strftime('%Y-%m-%d %H:%M'),
+                         item.id).__dict__)
         mail.reverse()
 
         return count, mail
