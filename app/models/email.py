@@ -1,4 +1,5 @@
 import email
+from email.header import decode_header
 from flask import current_app
 from app.daos.mail import IMail, DaoMail
 from app.models.errors import MailNotExist, NotYourMail
@@ -32,6 +33,13 @@ class IEmail:
         self._limit = limit
         self._mail = DaoMail()
 
+    @classmethod
+    def _decode_str(cls, encode: str):
+        value, charset = decode_header(encode)[0]
+        if charset:
+            value = value.decode(charset)
+        return value
+
     def get_mail_list(self) -> MailListData:
         raise NotImplementedError()
 
@@ -52,6 +60,8 @@ class AdminEmail(IEmail):
 
         message = email.message_from_string(mail.content)
 
+        title = mail.title if message.get('Subject') is None else self._decode_str(message.get('Subject'))
+
         content = ''
         for part in message.walk():
             if not part.is_multipart():
@@ -61,7 +71,7 @@ class AdminEmail(IEmail):
             from_addr=f'{mail.user.username}@wghtstudio.cn',
             to_addr=list(map(lambda x: f'{x.to_user.username}@wghtstudio.cn', mail.to_user)),
             content=str(content, encoding='utf-8'),
-            subject=mail.title,
+            subject=title,
             time=mail.create_at.strftime('%Y-%m-%d %H:%M')
         )
 
@@ -86,6 +96,8 @@ class UserEmail(IEmail):
         data = Protocol().get_mail_detail(mail.file_name, to_user)
         message = email.message_from_bytes(data)
 
+        title = mail.title if message.get('Subject') is None else self._decode_str(message.get('Subject'))
+
         content = ''
         for part in message.walk():
             if not part.is_multipart():
@@ -95,7 +107,7 @@ class UserEmail(IEmail):
             from_addr=f'{mail.user.username}@wghtstudio.cn',
             to_addr=list(map(lambda x: f'{x.to_user.username}@wghtstudio.cn', mail.to_user)),
             content=str(content, encoding='utf-8'),
-            subject=mail.title,
+            subject=title,
             time=mail.create_at.strftime('%Y-%m-%d %H:%M')
         )
 

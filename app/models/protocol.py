@@ -38,7 +38,7 @@ class Protocol(IProtocol):
                 index = int(temp[0])
                 break
         content = pop.retr(index)
-        return reduce(lambda x, y: x + y, content[1])
+        return b'\r\n'.join(content[1])
 
     def send_mail(self, from_addr=None, to_addr=None, content=None, subject=None) -> None:
         if subject is None:
