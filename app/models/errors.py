@@ -42,12 +42,7 @@ class AddressNotExist(Exception):
     pass
 
 
-class NoSender(Exception):
-    pass
 
-
-class NoReceivers(Exception):
-    pass
 
 
 class MailNotExist(Exception):
@@ -55,4 +50,16 @@ class MailNotExist(Exception):
 
 
 class NotYourMail(Exception):
+    pass
+
+
+class AddrIsUseless(Exception):
+    pass
+
+
+class UserIsUseless(Exception):
+    pass
+
+
+class HaveNoReceiver(Exception):
     pass

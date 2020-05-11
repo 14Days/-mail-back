@@ -5,6 +5,7 @@ from app.controllers.register import register
 from app.controllers.manage_user import manage_user
 from app.controllers.manage_ip import manage_ip
 from app.controllers.email import mail
+from app.controllers.send import send
 from app.middlewares import jwt_middleware
 
 
@@ -24,3 +25,5 @@ def register_router(app: Flask):
     # 收发邮件
     jwt_middleware(mail)
     app.register_blueprint(mail, url_prefix='/mail')
+    jwt_middleware(send)
+    app.register_blueprint(send, url_prefix='/mail')

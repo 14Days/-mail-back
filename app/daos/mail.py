@@ -19,7 +19,7 @@ class IMail:
         """收件箱列表方法"""
         raise NotImplementedError()
 
-    def get_user_email(self, user_id: int, page: int, limit: int) -> Tuple[int, list]:
+    def get_send_email(self, user_id: int, page: int, limit: int) -> Tuple[int, list]:
         """发件箱获取列表方法"""
         raise NotImplementedError()
 
@@ -69,7 +69,7 @@ class DaoMail(IMail):
 
         return len(mail), mail
 
-    def get_user_email(self, user_id: int, page: int, limit: int) -> Tuple[int, list]:
+    def get_send_email(self, user_id: int, page: int, limit: int) -> Tuple[int, list]:
         sql = Mail.query. \
             filter(Mail.delete_at.is_(None)). \
             filter(Mail.is_from_del == 0). \
