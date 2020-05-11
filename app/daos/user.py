@@ -28,6 +28,9 @@ class IUser:
     def delete_user(self, user: User) -> None:
         raise NotImplementedError()
 
+    def get_all_username(self) -> (List[str]):
+        raise NotImplementedError()
+
 
 class DaoUser(IUser):
     def query_user_by_username(self, username):
@@ -70,3 +73,12 @@ class DaoUser(IUser):
     def delete_user(self, user: User) -> None:
         user.delete_at = datetime.datetime.now()
         session_commit()
+
+    def get_all_username(self) -> (List[str]):
+        sql = User.query. \
+            filter(User.delete_at.is_(None)). \
+            filter(User.user_type != 1)
+        to_addr = []
+        for item in sql.all():
+            to_addr.append(item.username)
+            return to_addr
