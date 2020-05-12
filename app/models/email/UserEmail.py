@@ -1,3 +1,4 @@
+from app.daos import session_commit
 from app.models.errors import MailNotExist, NotYourMail
 from app.models.protocol import Protocol
 from app.models.email.IEmail import IEmail, MailListData, MailDetailData, ReceiveMailData
@@ -30,7 +31,7 @@ class UserEmail(IEmail):
 
         to_user = None
         for item in mail.to_user:
-            if item.to_user_id == self._user_id:
+            if item.to_user_id == self._user_id and item.is_to_del == 0:
                 to_user = item.to_user
                 break
         if to_user is None:
@@ -48,7 +49,8 @@ class UserEmail(IEmail):
         )
 
     def receive_delete(self, mail_id: int):
-        if self._mail.get_user_mail_by_id(mail_id) is None:
+        if self._mail.get_mail_by_id(mail_id) is None:
             raise MailNotExist("邮件不存在")
-        self._mail.del_receive_user_mail(mail_id)
-        return
+
+        self._mail.del_user_mail_weak(self._user_id, mail_id)
+        session_commit()

@@ -26,16 +26,16 @@ class IMail:
         """id查询收件箱邮件"""
         raise NotImplementedError()
 
-    def del_receive_user_mail(self, mail_id: int) -> None:
-        """用户收件箱删除邮件"""
-        raise NotImplementedError()
-
     def del_send_user_mail(self, mail_id: int) -> None:
         """用户发件箱删除邮件"""
         raise NotImplementedError()
 
     def del_user_mail(self, mail_id: int) -> None:
         """删除多对多关系表记录"""
+        raise NotImplementedError()
+
+    def del_user_mail_weak(self, user_id: int, mail_id: int) -> None:
+        """用户收件箱删除邮件"""
         raise NotImplementedError()
 
     def del_mail_weak(self, mail_id: int) -> None:
@@ -109,11 +109,6 @@ class DaoMail(IMail):
     #         filter(UserMail.is_to_del == 0). \
     #         first()
     #
-    # def del_receive_user_mail(self, mail_id: int) -> None:
-    #     _user_mail = self.get_user_mail_by_id(mail_id)
-    #     db.session.drop_all(_user_mail)
-    #     session_commit()
-    #     return
     #
     # def del_send_user_mail(self, mail_id: int) -> None:
     #     _mail = self.get_mail_by_id(mail_id)
@@ -128,6 +123,14 @@ class DaoMail(IMail):
             all()
         for item in _user_mail:
             db.session.delete(item)
+
+    def del_user_mail_weak(self, user_id: int, mail_id: int) -> None:
+        mail = UserMail.query. \
+            filter(UserMail.to_user_id == user_id). \
+            filter(UserMail.mail_id == mail_id). \
+            first()
+
+        mail.is_to_del = 1
 
     def del_mail_weak(self, mail_id: int) -> None:
         # 删除邮件本身
