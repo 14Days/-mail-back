@@ -1,9 +1,7 @@
 import datetime
-from typing import Tuple, List, Dict, Any
+from typing import Tuple, List
 from app.daos.model import Mail, UserMail
-from app.daos.user import DaoUser
-from app.daos import db, session_commit
-from flask import g
+from app.daos import db
 
 
 class IMail:
@@ -20,10 +18,6 @@ class IMail:
         raise NotImplementedError()
 
     def get_mail_by_id(self, mail_id: int) -> Mail:
-        raise NotImplementedError()
-
-    def get_user_mail_by_id(self, mail_id: int) -> UserMail:
-        """id查询收件箱邮件"""
         raise NotImplementedError()
 
     def del_send_user_mail(self, mail_id: int) -> None:
@@ -101,13 +95,6 @@ class DaoMail(IMail):
             filter(Mail.delete_at.is_(None)). \
             first()
 
-    #
-    # def get_user_mail_by_id(self, mail_id: int) -> UserMail:
-    #     return UserMail.query. \
-    #         filter(UserMail.mail_id == mail_id). \
-    #         filter(UserMail.to_user_id == g.user_id). \
-    #         filter(UserMail.is_to_del == 0). \
-    #         first()
     #
     #
     # def del_send_user_mail(self, mail_id: int) -> None:
