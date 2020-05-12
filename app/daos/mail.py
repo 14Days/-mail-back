@@ -16,6 +16,16 @@ class MailData:
         self.mail_id = mail_id
 
 
+class ReceiveMailData:
+    def __init__(self, from_user, to_users, title, send_time, mail_id, is_read):
+        self.from_user = from_user
+        self.to_users = to_users
+        self.title = title
+        self.send_time = send_time
+        self.mail_id = mail_id
+        self.is_read = is_read
+
+
 class IMail:
     def get_all_email(self, title: str, page: int, limit: int) -> Tuple[int, list]:
         raise NotImplementedError()
@@ -84,9 +94,9 @@ class DaoMail(IMail):
             temp_mail = x.mail
             if x.is_to_del == 0:
                 to_user = list(map(lambda y: f'{y.to_user.username}@wghtstudio.cn', temp_mail.to_user))
-                return MailData(temp_mail.user.nickname, to_user, self._decode_str(temp_mail.title),
-                                temp_mail.create_at.strftime('%Y-%m-%d %H:%M'),
-                                temp_mail.id).__dict__
+                return ReceiveMailData(temp_mail.user.nickname, to_user, self._decode_str(temp_mail.title),
+                                       temp_mail.create_at.strftime('%Y-%m-%d %H:%M'),
+                                       temp_mail.id, x.is_read).__dict__
 
         user = DaoUser().query_user_by_id(user_id)
         if user is None:
