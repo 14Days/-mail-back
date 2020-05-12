@@ -58,7 +58,24 @@ class Mail(MethodView):
     def post(self):
         pass
 
+    def delete(self, mail_id):
+        if mail_id is None:
+            current_app.logger.error('邮件id为空 %s', str({
+                'mail_id': mail_id,
+            }))
+            return Warp.fail_warp(301, errors['301'])
+        try:
+            get_email(g.user_type, user_id=g.user_id).receive_delete(mail_id)
+            return Warp.success_warp('删除成功')
+        except NotImplementedError as e:
+            current_app.logger.error(e)
+            return Warp.fail_warp(403, errors['403'])
+        except MailNotExist as e:
+            current_app.logger.error(e)
+            return Warp.fail_warp(208, errors['208'])
+
 
 view = Mail.as_view('mail')
 mail.add_url_rule('/receive', defaults={'mail_id': None}, view_func=view, methods=['GET'])
 mail.add_url_rule('/receive/<int:mail_id>', view_func=view, methods=['GET'])
+mail.add_url_rule('/receive/<int:mail_id>', view_func=view, methods=['delete'])

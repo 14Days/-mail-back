@@ -55,6 +55,9 @@ class IEmail:
     def get_mail_detail(self, mail_id: int) -> MailDetailData:
         raise NotImplementedError()
 
+    def send_delete(self, mail_id=None) -> None:
+        return
+
 
 class AdminEmail(IEmail):
     def send_mail(self, sender_ip=None, to_addr=None, content=None, subject=None) -> None:
@@ -88,6 +91,9 @@ class AdminEmail(IEmail):
             subject=self._decode_str(mail.title),
             time=mail.create_at.strftime('%Y-%m-%d %H:%M')
         )
+
+    def send_delete(self, mail_id=None) -> None:
+        pass
 
 
 class UserEmail(IEmail):
@@ -126,6 +132,12 @@ class UserEmail(IEmail):
             subject=self._decode_str(mail.title),
             time=mail.create_at.strftime('%Y-%m-%d %H:%M')
         )
+
+    def send_delete(self, mail_id=None) -> None:
+        if self._mail.get_mail_by_id(mail_id) is None:
+            raise MailNotExist("邮件不存在")
+        self._mail.del_send_user_mail(mail_id)
+        return
 
 
 def get_email(user_type: int, user_id=None, subject=None, page=0, limit=10) -> IEmail.__class__:
