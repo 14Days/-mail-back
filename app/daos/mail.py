@@ -65,15 +65,16 @@ class DaoMail(IMail):
             sql = Mail.query. \
                 filter(Mail.delete_at.is_(None)). \
                 filter(Mail.title.like('%{}%'.format(title)))
-        temp: List[Mail] = sql.limit(limit).offset(page * limit).all()
+        temp: List[Mail] = sql.order_by(Mail.create_at.desc()).limit(limit).offset(page * limit).all()
         count: int = sql.count()
 
         mail: List[Dict[str, Any]] = []
         for item in temp:
+            to_user = list(map(lambda x: f'{x.to_user.username}@wghtstudio.cn', item.to_user))
             mail.append(
-                MailData(item.user.nickname, self._decode_str(item.title), item.create_at.strftime('%Y-%m-%d %H:%M'),
+                MailData(item.user.nickname, to_user, self._decode_str(item.title),
+                         item.create_at.strftime('%Y-%m-%d %H:%M'),
                          item.id).__dict__)
-        mail.reverse()
 
         return count, mail
 
@@ -82,7 +83,8 @@ class DaoMail(IMail):
         def deal_func(x):
             temp_mail = x.mail
             if x.is_to_del == 0:
-                return MailData(temp_mail.user.nickname, self._decode_str(temp_mail.title),
+                to_user = list(map(lambda y: f'{y.to_user.username}@wghtstudio.cn', temp_mail.to_user))
+                return MailData(temp_mail.user.nickname, to_user, self._decode_str(temp_mail.title),
                                 temp_mail.create_at.strftime('%Y-%m-%d %H:%M'),
                                 temp_mail.id).__dict__
 
@@ -95,6 +97,7 @@ class DaoMail(IMail):
         if title is not None:
             mail = list(filter(lambda x: x['title'].find(title) != -1, mail))
         mail.reverse()
+        mail = mail[(page * limit):(page * limit + limit)]
 
         return len(mail), mail
 
@@ -104,20 +107,18 @@ class DaoMail(IMail):
             filter(Mail.is_from_del == 0). \
             filter(Mail.user_id == user_id)
 
-
-
         temp: List[Mail] = sql.limit(limit).offset(page * limit).all()
         count: int = sql.count()
 
         mail: List[Dict[str, Any]] = []
         for item in temp:
-            username = []
-            for user in item.user.to_list:
-                username.append(user.username)
+            to_user = list(map(lambda y: f'{y.to_user.username}@wghtstudio.cn', item.to_user))
             mail.append(
-                MailData(item.user.username, username, self._decode_str(item.title), item.create_at.strftime('%Y-%m-%d %H:%M'),
+                MailData(item.user.username, to_user, self._decode_str(item.title),
+                         item.create_at.strftime('%Y-%m-%d %H:%M'),
                          item.id).__dict__)
         mail.reverse()
+        mail = mail[(page * limit):(page * limit + limit)]
 
         return count, mail
 
