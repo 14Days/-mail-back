@@ -35,7 +35,7 @@ class IMail:
         raise NotImplementedError()
 
     def del_user_mail_weak(self, user_id: int, mail_id: int) -> None:
-        """用户收件箱删除邮件"""
+        """删除用户收件箱, 针对管理员来说需要保留邮件信息, 所以不能直接删除记录"""
         raise NotImplementedError()
 
     def del_mail_weak(self, mail_id: int) -> None:
