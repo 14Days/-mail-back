@@ -3,7 +3,8 @@ from flask.views import MethodView
 from sqlalchemy.exc import SQLAlchemyError
 from app.models.email import get_email
 from app.models.errors import MailNotExist, NotYourMail
-from app.utils import Warp, errors
+from app.utils import Warp
+from app.utils.mail.pop_client import ErrorProto
 
 mail = Blueprint('mail', __name__)
 
@@ -31,51 +32,47 @@ class Mail(MethodView):
                 return Warp.success_warp(res.__dict__)
             except SQLAlchemyError as e:
                 current_app.logger.error(e)
-                return Warp.fail_warp(501, errors['501'])
+                return Warp.fail_warp(501)
             except NotImplementedError as e:
                 current_app.logger.error(e)
-                return Warp.fail_warp(403, errors['403'])
-            except RuntimeError as e:
-                current_app.logger.error(e)
-                return Warp.fail_warp(201, errors['201'])
+                return Warp.fail_warp(403)
         else:
             try:
                 res = get_email(g.user_type, user_id=g.user_id).get_mail_detail(mail_id)
                 return Warp.success_warp(res.__dict__)
             except SQLAlchemyError as e:
                 current_app.logger.error(e)
-                return Warp.fail_warp(501, errors['501'])
+                return Warp.fail_warp(501)
             except MailNotExist as e:
                 current_app.logger.error(e)
-                return Warp.fail_warp(208, errors['208'])
+                return Warp.fail_warp(208)
             except NotYourMail as e:
                 current_app.logger.error(e)
-                return Warp.fail_warp(403, errors['403'])
+                return Warp.fail_warp(403)
             except NotImplementedError as e:
                 current_app.logger.error(e)
-                return Warp.fail_warp(403, errors['403'])
-
-    def post(self):
-        pass
+                return Warp.fail_warp(403)
+            except ErrorProto as e:
+                current_app.logger.error(e)
+                return Warp.fail_warp(502)
 
     def delete(self, mail_id):
         if mail_id is None:
             current_app.logger.error('邮件id为空 %s', str({
                 'mail_id': mail_id,
             }))
-            return Warp.fail_warp(301, errors['301'])
+            return Warp.fail_warp(301)
         try:
             get_email(g.user_type, user_id=g.user_id).receive_delete(mail_id)
             return Warp.success_warp('删除成功')
         except NotImplementedError as e:
             current_app.logger.error(e)
-            return Warp.fail_warp(403, errors['403'])
+            return Warp.fail_warp(403)
         except MailNotExist as e:
             current_app.logger.error(e)
-            return Warp.fail_warp(208, errors['208'])
+            return Warp.fail_warp(208)
 
 
 view = Mail.as_view('mail')
 mail.add_url_rule('/receive', defaults={'mail_id': None}, view_func=view, methods=['GET'])
-mail.add_url_rule('/receive/<int:mail_id>', view_func=view, methods=['GET'])
-mail.add_url_rule('/receive/<int:mail_id>', view_func=view, methods=['delete'])
+mail.add_url_rule('/receive/<int:mail_id>', view_func=view, methods=['GET', 'DELETE'])

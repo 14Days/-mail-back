@@ -1,4 +1,5 @@
 from flask import jsonify
+from app.utils.errors import errors
 
 
 class Warp:
@@ -11,9 +12,14 @@ class Warp:
         })
 
     @classmethod
-    def fail_warp(cls, code, msg):
+    def fail_warp(cls, code, msg=None):
+        if msg is None:
+            temp = errors.get(str(code))
+        else:
+            temp = msg
+
         return jsonify({
             'code': code,
-            'msg': msg,
+            'msg': temp,
             'data': None
         })

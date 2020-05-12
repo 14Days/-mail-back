@@ -9,7 +9,7 @@ def jwt_middleware(app: Blueprint):
         token = request.headers.get('Authorization')
         if token is None:
             current_app.logger.warn(errors['402'])
-            return Warp.fail_warp(402, errors['402']), 401
+            return Warp.fail_warp(402), 401
 
         try:
             jwt = Token.parse_token(token)
@@ -19,7 +19,7 @@ def jwt_middleware(app: Blueprint):
             current_app.logger.info('当前登录用户 id 为 %d, 用户类型为 %d', user_id, user_type)
         except ExpiredSignatureError:
             current_app.logger.warn(errors['404'])
-            return Warp.fail_warp(404, errors['404']), 401
+            return Warp.fail_warp(404), 401
         except DecodeError:
             current_app.logger.warn(errors['405'])
-            return Warp.fail_warp(405, errors['405']), 401
+            return Warp.fail_warp(405), 401

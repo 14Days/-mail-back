@@ -4,7 +4,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from app.models.send import get_email
 from app.models.errors import MailNotExist, NotYourMail
 from app.utils.mail.smtp_client import SMTPException
-from app.utils import Warp, errors
+from app.utils import Warp
 
 send = Blueprint('send', __name__)
 
@@ -32,29 +32,29 @@ class Send(MethodView):
                 return Warp.success_warp(res.__dict__)
             except SQLAlchemyError as e:
                 current_app.logger.error(e)
-                return Warp.fail_warp(501, errors['501'])
+                return Warp.fail_warp(501)
             except NotImplementedError as e:
                 current_app.logger.error(e)
-                return Warp.fail_warp(403, errors['403'])
+                return Warp.fail_warp(403)
             except RuntimeError as e:
                 current_app.logger.error(e)
-                return Warp.fail_warp(201, errors['201'])
+                return Warp.fail_warp(201)
         else:
             try:
                 res = get_email(g.user_type, user_id=g.user_id).get_mail_detail(mail_id)
                 return Warp.success_warp(res.__dict__)
             except SQLAlchemyError as e:
                 current_app.logger.error(e)
-                return Warp.fail_warp(501, errors['501'])
+                return Warp.fail_warp(501)
             except MailNotExist as e:
                 current_app.logger.error(e)
-                return Warp.fail_warp(208, errors['208'])
+                return Warp.fail_warp(208)
             except NotYourMail as e:
                 current_app.logger.error(e)
-                return Warp.fail_warp(403, errors['403'])
+                return Warp.fail_warp(403)
             except NotImplementedError as e:
                 current_app.logger.error(e)
-                return Warp.fail_warp(403, errors['403'])
+                return Warp.fail_warp(403)
 
     def post(self):
         data = request.json
@@ -70,26 +70,26 @@ class Send(MethodView):
             return Warp.success_warp('发送成功')
         except SMTPException as e:
             current_app.logger.error(e)
-            return Warp.fail_warp(500, errors['500'])
+            return Warp.fail_warp(500)
         except NotImplementedError as e:
             current_app.logger.error(e)
-            return Warp.fail_warp(403, errors['403'])
+            return Warp.fail_warp(403)
 
     def delete(self, mail_id):
         if mail_id is None:
             current_app.logger.error('邮件id为空 %s', str({
                 'mail_id': mail_id,
             }))
-            return Warp.fail_warp(301, errors['301'])
+            return Warp.fail_warp(301)
         try:
             get_email(g.user_type, user_id=g.user_id).send_delete(mail_id)
             return Warp.success_warp('删除成功')
         except NotImplementedError as e:
             current_app.logger.error(e)
-            return Warp.fail_warp(403, errors['403'])
+            return Warp.fail_warp(403)
         except MailNotExist as e:
             current_app.logger.error(e)
-            return Warp.fail_warp(208, errors['208'])
+            return Warp.fail_warp(208)
 
 
 view = Send.as_view('send')
