@@ -109,8 +109,8 @@ class UserEmail(IEmail):
         return
 
     def get_mail_list(self) -> MailListData:
-        count, mail = self._mail.get_receive_mail(title=self._subject, user_id=self._user_id, limit=self._limit,
-                                                  page=self._page)
+        count, mail = self._mail.get_send_email(user_id=self._user_id, limit=self._limit,
+                                                page=self._page)
         return MailListData(res=mail, count=count)
 
     def get_mail_detail(self, mail_id: int) -> MailDetailData:

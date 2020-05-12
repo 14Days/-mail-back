@@ -136,8 +136,8 @@ class DaoMail(IMail):
             first()
 
     def del_receive_user_mail(self, mail_id: int) -> None:
-        user_mail = self.get_user_mail_by_id(mail_id)
-        db.session.delete(user_mail)
+        _user_mail = self.get_user_mail_by_id(mail_id)
+        db.session.drop_all(_user_mail)
         session_commit()
         return
 
@@ -148,12 +148,12 @@ class DaoMail(IMail):
         return
 
     def del_mail(self, mail_id: int) -> None:
+        _user_mail = UserMail.query. \
+            filter(UserMail.mail_id == mail_id). \
+            all()
+        for item in _user_mail:
+            db.session.delete(item)
         mail = self.get_mail_by_id(mail_id)
         mail.delete_at = datetime.datetime.now()
-        user_mail = UserMail.query. \
-            filter(UserMail.mail_id == mail_id). \
-            filter(UserMail.is_to_del == 0). \
-            all()
-        db.session.delete(user_mail)
         session_commit()
         return
