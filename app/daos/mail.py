@@ -112,7 +112,7 @@ class DaoMail(IMail):
         mail: List[Dict[str, Any]] = []
         for item in temp:
             username = []
-            for user in item.to_user.to_list:
+            for user in item.user.to_list:
                 username.append(user.username)
             mail.append(
                 MailData(item.user.username, username, self._decode_str(item.title), item.create_at.strftime('%Y-%m-%d %H:%M'),
