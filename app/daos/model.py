@@ -49,3 +49,4 @@ class UserMail(db.Model):
     mail_id = db.Column(db.Integer, db.ForeignKey('mail.id'), nullable=False, primary_key=True)
     is_to_del = db.Column(db.Integer, nullable=False, default=0)
     mail = db.relationship('Mail', backref='to_user', foreign_keys=[mail_id])
+    is_read = db.Column(db.Integer, nullable=False, default=0)
