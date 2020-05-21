@@ -1,7 +1,16 @@
 import datetime
-from typing import Tuple, List
+from typing import Tuple, List, Dict, Any
 from app.daos.model import Mail, UserMail
-from app.daos import db
+from app.daos import db, session_commit
+
+
+class MailData:
+    def __init__(self, from_user, to_users, title, send_time, mail_id):
+        self.from_user = from_user
+        self.to_users = to_users
+        self.title = title
+        self.send_time = send_time
+        self.mail_id = mail_id
 
 
 class IMail:
@@ -67,42 +76,39 @@ class DaoMail(IMail):
 
         return len(mail), mail
 
-    #
-    # def get_send_email(self, user_id: int, page: int, limit: int) -> Tuple[int, list]:
-    #     sql = Mail.query. \
-    #         filter(Mail.delete_at.is_(None)). \
-    #         filter(Mail.is_from_del == 0). \
-    #         filter(Mail.user_id == user_id)
-    #
-    #     temp: List[Mail] = sql.limit(limit).offset(page * limit).all()
-    #     count: int = sql.count()
-    #
-    #     mail: List[Dict[str, Any]] = []
-    #     for item in temp:
-    #         to_user = list(map(lambda y: f'{y.to_user.username}@wghtstudio.cn', item.to_user))
-    #         mail.append(
-    #             MailData(item.user.username, to_user, self._decode_str(item.title),
-    #                      item.create_at.strftime('%Y-%m-%d %H:%M'),
-    #                      item.id).__dict__)
-    #     mail.reverse()
-    #     mail = mail[(page * limit):(page * limit + limit)]
-    #
-    #     return count, mail
-    #
+    def get_send_email(self, user_id: int, page: int, limit: int) -> Tuple[int, list]:
+        sql = Mail.query. \
+            filter(Mail.delete_at.is_(None)). \
+            filter(Mail.is_from_del == 0). \
+            filter(Mail.user_id == user_id)
+
+        temp: List[Mail] = sql.limit(limit).offset(page * limit).all()
+        count: int = sql.count()
+
+        mail: List[Dict[str, Any]] = []
+        for item in temp:
+            to_user = list(map(lambda y: f'{y.to_user.username}@wghtstudio.cn', item.to_user))
+            mail.append(
+                MailData(item.user.username, to_user, item.title.encode('utf-8').decode('utf-8'),
+                         item.create_at.strftime('%Y-%m-%d %H:%M'),
+                         item.id).__dict__)
+        mail.reverse()
+        mail = mail[(page * limit):(page * limit + limit)]
+
+        return count, mail
+
     def get_mail_by_id(self, mail_id: int) -> Mail:
         return Mail.query. \
             filter(Mail.id == mail_id). \
             filter(Mail.delete_at.is_(None)). \
             first()
 
-    #
-    #
-    # def del_send_user_mail(self, mail_id: int) -> None:
-    #     _mail = self.get_mail_by_id(mail_id)
-    #     _mail.is_from_del = 1
-    #     session_commit()
-    #     return
-    #
+    def del_send_user_mail(self, mail_id: int) -> None:
+        _mail = self.get_mail_by_id(mail_id)
+        _mail.is_from_del = 1
+        session_commit()
+        return
+
     def del_user_mail(self, mail_id: int) -> None:
         # 删除多对多关系表
         _user_mail = UserMail.query. \
