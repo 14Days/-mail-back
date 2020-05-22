@@ -81,4 +81,4 @@ class DaoUser(IUser):
         to_addr = []
         for item in sql.all():
             to_addr.append(f'{item.username}@wghtstudio.cn')
-            return to_addr
+        return to_addr
