@@ -29,7 +29,7 @@ class AdminEmail(IEmail):
         if mail is None:
             raise MailNotExist('邮件不存在')
         # 通过解码类解码
-        decode = MailDecode(s=mail.content, title=mail.title)
+        decode = MailDecode(s=bytes(mail.content, 'utf-8'), title=mail.title)
 
         return MailDetailData(
             from_addr=f'{mail.user.username}@wghtstudio.cn',
