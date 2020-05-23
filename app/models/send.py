@@ -6,6 +6,7 @@ from app.daos.mail import IMail, DaoMail
 from app.daos.user import IUser, DaoUser
 from app.models.errors import MailNotExist, AddrIsUseless, UserIsUseless, HaveNoReceiver
 from app.models.protocol import Protocol
+from app.utils.mail_decode import MailDecode
 
 
 class MailListData:
@@ -70,6 +71,8 @@ class AdminEmail(IEmail):
     def get_mail_list(self) -> MailListData:
         current_app.logger.debug(self._user_id)
         count, mail = self._mail.get_send_email(user_id=self._user_id, limit=self._limit, page=self._page)
+        for item in mail:
+            item['title'] = MailDecode(b'', item.get('title')).get_subject()
         return MailListData(res=mail, count=count)
 
     def get_mail_detail(self, mail_id: int) -> MailDetailData:
@@ -111,6 +114,8 @@ class UserEmail(IEmail):
     def get_mail_list(self) -> MailListData:
         count, mail = self._mail.get_send_email(user_id=self._user_id, limit=self._limit,
                                                 page=self._page)
+        for item in mail:
+            item['title'] = MailDecode(b'', item.get('title')).get_subject()
         return MailListData(res=mail, count=count)
 
     def get_mail_detail(self, mail_id: int) -> MailDetailData:
