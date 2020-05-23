@@ -58,8 +58,8 @@ class AdminModifyInfo(ModifyInfo):
         if self._user is None:
             raise UserNotFound('用户未找到')
 
-        if self._user.user_type == 1 and g.user_id != user_id:
-            raise ModifyAdminError('无法修改管理员账号')
+        # if self._user.user_type == 1 and g.user_id != user_id:
+        #     raise ModifyAdminError('无法修改管理员账号')
 
         self._handle_dict()
         self._commit()
