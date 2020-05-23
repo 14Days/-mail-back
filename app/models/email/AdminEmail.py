@@ -12,7 +12,7 @@ class AdminEmail(IEmail):
 
         res = []
         for item in mail:
-            decode = MailDecode('', item.title)
+            decode = MailDecode(b'', item.title)
             res.append(
                 ReceiveMailData(
                     from_user=item.user.nickname, title=decode.get_subject(),
