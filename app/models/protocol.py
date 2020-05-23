@@ -1,7 +1,6 @@
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.header import Header
-from functools import reduce
 from flask import current_app
 from app.basic import Config
 from app.utils.mail.smtp_client import SMTP

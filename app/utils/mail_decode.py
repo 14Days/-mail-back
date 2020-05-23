@@ -16,7 +16,7 @@ class MailDecode:
         return value
 
     def __init__(self, s: str, title):
-        self._message = email.message_from_string(s)
+        self._message = email.message_from_bytes(s)
         self._title = title
 
     def get_subject(self):
