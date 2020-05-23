@@ -2,7 +2,7 @@ from flask import Blueprint, current_app, request, g
 from flask.views import MethodView
 from sqlalchemy.exc import SQLAlchemyError
 from app.models.send import get_email
-from app.models.errors import MailNotExist, NotYourMail
+from app.models.errors import MailNotExist, NotYourMail, AddrIsUseless, UserIsUseless, HaveNoReceiver
 from app.utils.mail.smtp_client import SMTPException
 from app.utils import Warp
 
@@ -74,6 +74,16 @@ class Send(MethodView):
         except NotImplementedError as e:
             current_app.logger.error(e)
             return Warp.fail_warp(403)
+        except AddrIsUseless as e:
+            current_app.logger.error(e)
+            return Warp.fail_warp(209)
+        except UserIsUseless as e:
+            current_app.logger.error(e)
+            return Warp.fail_warp(210)
+        except HaveNoReceiver as e:
+            current_app.logger.error(e)
+            return Warp.fail_warp(303)
+
 
     def delete(self, mail_id):
         if mail_id is None:

@@ -2,6 +2,7 @@ import datetime
 from typing import List, Dict, Any
 from app.daos import db, session_commit
 from app.daos.model import User
+from flask import g
 
 
 class UserListData:
@@ -55,11 +56,11 @@ class DaoUser(IUser):
         if username is None:
             sql = User.query. \
                 filter(User.delete_at.is_(None)). \
-                filter(User.user_type != 1)
+                filter(User.id != g.user_id)
         else:
             sql = User.query. \
                 filter(User.delete_at.is_(None)). \
-                filter(User.user_type != 1). \
+                filter(User.id != g.user_id). \
                 filter(User.username.like('%{}%'.format(username)))
         temp = sql.limit(limit).offset(page * limit).all()
         count = sql.count()
@@ -81,4 +82,4 @@ class DaoUser(IUser):
         to_addr = []
         for item in sql.all():
             to_addr.append(f'{item.username}@wghtstudio.cn')
-            return to_addr
+        return to_addr

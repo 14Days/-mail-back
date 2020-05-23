@@ -41,8 +41,8 @@ class ModifyInfo:
         self._user.sex = sex
 
     def handle_user_type(self, user_type):
-        if user_type != 2 and user_type != 3:
-            raise TypeError('user_type 必须为 1 或 2')
+        # if user_type != 2 and user_type != 3:
+        #     raise TypeError('user_type 必须为 1 或 2')
         self._user.user_type = user_type
 
     def _commit(self):
@@ -58,8 +58,8 @@ class AdminModifyInfo(ModifyInfo):
         if self._user is None:
             raise UserNotFound('用户未找到')
 
-        if self._user.user_type == 1 and g.user_id != user_id:
-            raise ModifyAdminError('无法修改管理员账号')
+        # if self._user.user_type == 1 and g.user_id != user_id:
+        #     raise ModifyAdminError('无法修改管理员账号')
 
         self._handle_dict()
         self._commit()
