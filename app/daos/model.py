@@ -50,3 +50,11 @@ class UserMail(db.Model):
     is_to_del = db.Column(db.Integer, nullable=False, default=0)
     mail = db.relationship('Mail', backref='to_user', foreign_keys=[mail_id])
     is_read = db.Column(db.Integer, nullable=False, default=0)
+
+
+class Server(db.Model):
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    smtp_on = db.Column(db.Integer, nullable=False, default=1)
+    smtp_port = db.Column(db.Integer, nullable=False)
+    pop_on = db.Column(db.Integer, nullable=False, default=1)
+    pop_port = db.Column(db.Integer, nullable=False)

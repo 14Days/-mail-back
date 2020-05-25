@@ -4,6 +4,7 @@ from app.controllers.ping import ping
 from app.controllers.register import register
 from app.controllers.manage_user import manage_user
 from app.controllers.manage_ip import manage_ip
+from app.controllers.manage_server import manage_server
 from app.controllers.email import mail
 from app.controllers.send import send
 from app.middlewares import jwt_middleware
@@ -27,3 +28,6 @@ def register_router(app: Flask):
     app.register_blueprint(mail, url_prefix='/mail')
     jwt_middleware(send)
     app.register_blueprint(send, url_prefix='/mail')
+    # 服务启停
+    jwt_middleware(manage_server)
+    app.register_blueprint(manage_server)

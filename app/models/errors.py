@@ -42,9 +42,6 @@ class AddressNotExist(Exception):
     pass
 
 
-
-
-
 class MailNotExist(Exception):
     pass
 
@@ -62,4 +59,12 @@ class UserIsUseless(Exception):
 
 
 class HaveNoReceiver(Exception):
+    pass
+
+
+class PortOutOfRange(Exception):
+    pass
+
+
+class StateNotExist(Exception):
     pass
