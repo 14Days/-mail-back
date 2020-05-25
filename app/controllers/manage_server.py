@@ -3,12 +3,24 @@ from flask.views import MethodView
 from sqlalchemy.exc import SQLAlchemyError
 from app.models.errors import StateNotExist, PortOutOfRange, PropertyNotExist
 from app.models.modify_ser import manage_server as my_server
+from app.models.server_info import ManageServer as MServer
 from app.utils import Warp
 
 manage_server = Blueprint('manage_server', __name__)
 
 
 class ManageServer(MethodView):
+    def get(self):
+        try:
+            res = MServer().get_server_info()
+            return Warp.success_warp(res.__dict__)
+        except SQLAlchemyError as e:
+            current_app.logger.error(e)
+            return Warp.fail_warp(501)
+        except NotImplementedError as e:
+            current_app.logger.error(e)
+            return Warp.fail_warp(403)
+
     def put(self):
         try:
             my_server(request.json)
@@ -31,4 +43,4 @@ class ManageServer(MethodView):
 
 
 view = ManageServer.as_view('manage_server')
-manage_server.add_url_rule('/server', view_func=view, methods=['PUT'])
+manage_server.add_url_rule('/server', view_func=view, methods=['PUT', 'GET'])
