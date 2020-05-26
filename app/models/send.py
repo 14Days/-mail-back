@@ -4,9 +4,11 @@ from email.header import decode_header
 from app.daos.ip import IIP, DaoIP
 from app.daos.mail import IMail, DaoMail
 from app.daos.user import IUser, DaoUser
-from app.models.errors import MailNotExist, AddrIsUseless, UserIsUseless, HaveNoReceiver
+from app.models.errors import MailNotExist, AddrIsUseless, UserIsUseless, HaveNoReceiver, SMTPServerUseless
 from app.models.protocol import Protocol
 from app.utils.mail_decode import MailDecode
+from app.daos.server import IServer, DaoServer
+from app.daos.model import Server
 
 
 class MailListData:
@@ -30,6 +32,7 @@ class IEmail:
     _mail: IMail
     _user: IUser
     _ip: IIP
+    _server: IServer
 
     def __init__(self, user_id, subject=None, page=0, limit=10):
         self._user_id = user_id
@@ -39,6 +42,7 @@ class IEmail:
         self._mail = DaoMail()
         self._user = DaoUser()
         self._ip = DaoIP()
+        self._server = DaoServer()
 
     @classmethod
     def _decode_str(cls, encode: str):
@@ -59,9 +63,15 @@ class IEmail:
     def send_delete(self, mail_id=None) -> None:
         return
 
+    def send_server_state(self):
+        server = self._server.query_server()
+        return server.smtp_on
+
 
 class AdminEmail(IEmail):
     def send_mail(self, sender_ip=None, to_addr=None, content=None, subject=None) -> None:
+        if self.send_server_state() != 1:
+            raise SMTPServerUseless("smtp服务已关闭")
         from_addr = f'{self._user.query_user_by_id(g.user_id).username}@wghtstudio.cn'
         to_addr = self._user.get_all_username()
         Protocol().send_mail(from_addr, to_addr, content,
@@ -101,9 +111,11 @@ class AdminEmail(IEmail):
 
 class UserEmail(IEmail):
     def send_mail(self, sender_ip=None, to_addr=None, content=None, subject=None) -> None:
+        if self.send_server_state() != 1:
+            raise SMTPServerUseless("smtp服务已关闭")
         if self._ip.query_ip_by_address(sender_ip):
             raise AddrIsUseless('您的ip不可用')
-        if self._user.query_user_by_id(self._user_id).user_type == 3:
+        if g.user_type == 3:
             raise UserIsUseless('您的账户不可用')
         if to_addr is None:
             raise HaveNoReceiver('没有收件人')

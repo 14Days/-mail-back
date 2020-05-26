@@ -68,3 +68,11 @@ class PortOutOfRange(Exception):
 
 class StateNotExist(Exception):
     pass
+
+
+class SMTPServerUseless(Exception):
+    pass
+
+
+class POPServerUseless(Exception):
+    pass
