@@ -1,12 +1,20 @@
 from app.daos import session_commit
-from app.models.errors import MailNotExist, NotYourMail
+from app.daos.server import DaoServer
+from app.models.errors import MailNotExist, NotYourMail, POPServerUseless
 from app.models.protocol import Protocol
 from app.models.email.IEmail import IEmail, MailListData, MailDetailData, ReceiveMailData
 from app.utils.mail_decode import MailDecode
 
 
 class UserEmail(IEmail):
+    @classmethod
+    def confirm_pop_server_is_on(cls):
+        server = DaoServer().query_server()
+        return server.pop_on == 1
+
     def get_mail_list(self) -> MailListData:
+        if not self.confirm_pop_server_is_on():
+            raise POPServerUseless('POP3 服务未运行')
         count, mail = self._mail.get_receive_mail(title=self._subject, user_id=self._user_id, limit=self._limit,
                                                   page=self._page)
 
@@ -24,6 +32,8 @@ class UserEmail(IEmail):
         return MailListData(res=res, count=count)
 
     def get_mail_detail(self, mail_id: int) -> MailDetailData:
+        if not self.confirm_pop_server_is_on():
+            raise POPServerUseless('POP3 服务未运行')
         mail = self._mail.get_mail_by_id(mail_id)
         # 一定要判断是否存在这封邮件
         if mail is None:
